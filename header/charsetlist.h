@@ -4,22 +4,20 @@
 #include <stack.h>
 #include <string.h>
 
-// Adds a character to the current set (as a stack)
-void pushToCharSet(Node** charset, char* c) {
-	Data data;
-	data.type = "character";
-	data.data = c;
-	push(charset, data);
-}
+// Pushes a character to a character set
+// A character set is a stack of characters
+void pushToCharSet(Node** charset, char* c);
 
-void pushToCharSetList(Node** charsetList, Node** charset, int repeats) {
-	Data data;
-	if (repeats) {
-		data.type = "repeated";
-	}
-	else {
-		data.type = "charset";
-	}
-	data.data = charset;
-	push(charsetList, data);
-};
+// A list of Character sets
+// Character sets are a form of regular expressions
+// If repeats is true (1), the character set may repeated (Kleene star)
+// Otherwise, the character set will parse only once (0)
+void pushToCharSetList(Node** charsetList, Node** charset, int repeats);
+
+// Prints a character set
+// repeated = 1 to print Kleene Start
+// otherwise not
+void printCharSet(Node* charsetList, int repeated);
+
+// Prints a character set list
+void printCharSetList(Node* charsetList);
