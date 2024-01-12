@@ -4,28 +4,36 @@
 #include <stdlib.h>
 #include <string.h>
 #include "grammarformatparser.h"
+#include "error.h"
 
 
 // (Note: White space is generally ignored, a '#' symbol denotes no whitespace is allowed)
 // (Note: '' deontes an empty string)
 // EXPECTED FORMAT:
-//<GrammarFile> ::= <ListOfNonTerminals> '\n' <ListOfRules>
+//<Grammar> ::= <NonTerminalInit> '\n' <ListOfRules>
+//<NonTerminalInit> ::= '[' <ListOfNonTerminals> ']' 
+//<ListOfNonTerminals> ::= <NonTerminal> ',' <ListOfNonTerminals> | <NonTerminal>
 //<ListOfNonTerminals> ::= '[' <ListOfNonTerminals> ']'
 //<ListOfNonTerminals> ::= <NonTerminal> ',' <ListOfNonTerminals> | <NonTerminal>
 //<NonTerminal> ::= {'A' - 'Z'} {'A' - 'Z' | 'a' - 'z'}*
 //<ListOfRules> ::= <Rule> <ListOfRules> | <Rule>
 //<Rule> ::= <NonTerminal> '::=' <ListOfProductions> ';' '\n'
-//<ListOfProductions> ::= <Production> '|' <ListOfProductions> | <Production>
-//<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> | <CharSet> <Production> | <Terminal> | <NonTerminal> | <CharSet>
-//<Terminal> ::= '\"' # <String> # '\"'
-// <String> ::= # <Char> # <String> # | ''
-//<Char> ::= {'A'-'Z' | 'a'-'z' | '0'-'9' | ' ' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | 
+//<ListOfProductions> ::= <ProductionSequence> '|' <ListOfProductions> | <ProductionSequence>
+//<ProductionSequence> ::= <Production> | <CharSetList>
+//<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> | <Terminal> | <NonTerminal>
+//<Terminal> ::= <String>
+//<String> ::= '\"' # <StringTokenList> # '\"'
+//<StringTokenList> ::= # <StringToken> # <StringTokenList> # | ''
+//<StringToken> ::= {'A'-'Z' | 'a'-'z' | '0'-'9' | ' ' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | 
 // '(' | ')' | '_' | '-' | '+' | '=' | '{' | '}' | '[' | ']' | '|' | ':' | 
 // ';' | '<' | '>' | ',' | '.' | '?' | '/' | '`' | '~' |  
 // '\a' | '\b' | '\f' | '\n' | '\r' | '\t' | '\v' | '\?' | '\\' | '\'' | '\"' }*
+//<CharSetList> ::= <CharSet> <CharSetList> | <CharSet>
 //<CharSet> ::= '{' <CharList> '}' | '{' <CharList> '}*'
-//<CharList> ::= '\'' # <StringToken> # '\'' <CharList> | <Char>
-
+//<CharList> ::= '\'' # <StringToken> # '\'' ',' <CharList> | '(' <CharRange> ')' <CharList> | <StringToken> | '(' <CharRange> ')'
+//<CharRange> ::= '\'' # <StringToken> # '\'' '...' '\'' # <StringToken> # '\''
+// 
+//
 // An Example Grammar:
 // [A, B, C]
 // A ::= "ab" | "c" B | {'!', '@'}*;
@@ -33,6 +41,17 @@
 // C ::= "c" | "d" | "e" | "f" | "g" | "h" A;
 
 
+// To ensure only one error is printed
+int errorFlag = TRUE;
+
+int grammarError(char* msg, int *pos) {
+    if (errorFlag) {
+        ERROR("%s, pos=%d\n", msg, *pos);
+        // Set the error flag to false to stop printing errors
+        errorFlag = FALSE;
+    }
+    return FALSE;
+}
 
 char* parseFile(char* filename) {
     FILE* fp;
@@ -71,3 +90,229 @@ char* parseFile(char* filename) {
 }
 
 
+// <Grammar> ::= <ListOfNonTerminals> '\n' <ListOfRules>
+parseGrammar(char* str, int *pos) {
+    parseWhiteSpace(str, pos, TRUE);
+    if (!parseNonTerminalInit(str, pos)) return FALSE;
+    //printf("Good\n");
+    parseWhiteSpace(str, pos, FALSE);
+    if (!eat(str, pos, '\n')) return FALSE;
+    //printf("Good\n");
+    if (!parseListOfRules(str, pos)) return FALSE;
+    return TRUE;
+}
+
+int parseNonTerminalInit(char* str, int* pos) {
+	if (!eat(str, pos, '[')) return grammarError("Missing \'[\'", pos);
+	if (!parseListOfNonTerminals(str, pos)) return FALSE;
+	if (!eat(str, pos, ']')) return grammarError("Missing \']\'", pos);
+	return TRUE;
+}
+
+int parseListOfNonTerminals(char* str, int* pos) {
+    parseWhiteSpace(str, pos, TRUE);
+    if (!parseNonTerminal(str, pos)) return FALSE;
+    parseWhiteSpace(str, pos, TRUE);
+    if (eat(str, pos, ',')) {
+        if (!parseListOfNonTerminals(str, pos)) return FALSE;
+    }
+    return TRUE;
+}
+
+int parseListOfRules(char* str, int* pos) {
+	parseWhiteSpace(str, pos, TRUE);
+	if (!parseRule(str, pos)) return FALSE;
+	parseWhiteSpace(str, pos, TRUE);
+	if ((*pos) < strlen(str)) {
+		if (!parseListOfRules(str, pos)) return FALSE;
+	}
+	return TRUE;
+}
+
+int parseRule(char* str, int* pos) {
+	if (!parseNonTerminal(str, pos)) return grammarError("Missing Starting Symbol for Rule", pos);;
+    parseWhiteSpace(str, pos, FALSE);
+	if (!eat(str, pos, ':')) return grammarError("Missing \':\'", pos);
+	if (!eat(str, pos, ':')) return grammarError("Missing \':\'", pos);
+	if (!eat(str, pos, '=')) return grammarError("Missing \'=\'", pos);
+	if (!parseListOfProductions(str, pos)) return FALSE;
+	if (!eat(str, pos, ';')) return grammarError("Missing \';\'", pos);
+    parseWhiteSpace(str, pos, FALSE);
+	if (!eat(str, pos, '\n')) return grammarError("Missing newline character", pos);
+	return TRUE;
+}
+
+int parseListOfProductions(char* str, int* pos) {
+    parseWhiteSpace(str, pos, TRUE);
+    if (!parseProductionSequence(str, pos)) return FALSE;
+    parseWhiteSpace(str, pos, TRUE);
+    // logical OR (choice)
+	if (!eat(str, pos, '|')) return TRUE;
+	if (!parseListOfProductions(str, pos)) return grammarError("Production Rule after \'|\' cannot be blank", pos);
+	return TRUE;
+}
+
+int parseProductionSequence(char* str, int* pos) {
+	parseWhiteSpace(str, pos, TRUE);
+    if (parseCharSetList(str, pos));
+	else if (!parseProduction(str, pos)) return FALSE;
+	parseWhiteSpace(str, pos, TRUE);
+	// logical AND (sequence)
+	if (!parseProductionSequence(str, pos)) return TRUE;
+	return TRUE;
+}
+
+int parseProduction (char* str, int* pos) {
+    // check which type of symbol/production it is
+    if (peek(str, pos, '\"')) {
+		if (!parseTerminal(str, pos)) return FALSE;
+	}
+    else {
+        if (!parseNonTerminal(str, pos)) return FALSE;
+	}
+    return TRUE;
+}
+
+int parseNonTerminal(char* str, int* pos) {
+    if (*pos >= strlen(str)) return FALSE;
+    char next = str[*pos];
+    // Uppercase letter
+    if (('Z' - next) < 0 || (next - 'A') < 0) return FALSE;
+    (*pos)++;
+    // keep scanning for letters
+    while ( (('Z' - next) < 0 && (next - 'A') < 0) || (('z' - next) < 0 && (next - 'a') < 0)) {
+        (*pos)++;
+    }
+	return TRUE;
+}
+
+int parseTerminal(char* str, int* pos) {
+    return parseString(str, pos);
+}
+
+int parseString(char* str, int* pos) {
+    if (!eat(str, pos, '\"')) return FALSE;
+    eat(str, pos, '\"');
+    if (peek(str, pos, '\"')) return eat(str, pos, '\"'); //TRUE
+	if (!parseStringTokenList(str, pos)) return FALSE;
+    if (!eat(str, pos, '\"')) return FALSE;
+
+	return TRUE;
+}
+
+
+int parseStringTokenList(char* str, int* pos) {
+	//int startPos = *pos;
+	while (parseStringToken(str, pos));
+	//*pos = startPos;
+	return TRUE;
+}
+
+int parseStringToken(char* str, int* pos) {
+    int startPos = *pos;
+    if (peek(str, pos, '\'') || peek(str, pos, '\"')) {
+        return FALSE;
+	}
+    else if (peek(str, pos, '\\')) {
+        eat(str, pos, '\\');
+        if (peek(str, pos, 'a') || peek(str, pos, 'b') || peek(str, pos, 'f') || peek(str, pos, 'n') 
+           || peek(str, pos, 'r') || peek(str, pos, 't') || peek(str, pos, 'v') || peek(str, pos, '?')
+            || peek(str, pos, '\\') || peek(str, pos, '\'') || peek(str, pos, '\"')) {
+            return eat(str, pos, str[(*pos)]);
+        }
+        else return FALSE;
+    }
+    else {
+        (*pos)++;
+    }
+    return TRUE;
+}
+
+int parseCharSetList(char* str, int* pos) {
+	parseWhiteSpace(str, pos, TRUE);
+    if (!peek(str, pos, '{')) return FALSE;
+	if (!parseCharSet(str, pos)) return FALSE;
+	parseWhiteSpace(str, pos, TRUE);
+    if (peek(str, pos, '{')) {
+        if (!parseCharSetList(str, pos)) return FALSE;
+    }
+	return TRUE;
+}
+
+int parseCharSet(char* str, int* pos) {
+	if (!eat(str, pos, '{')) return grammarError("Missing \'{\'", pos);
+	if (!parseCharList(str, pos, 0)) return FALSE;
+	if (!eat(str, pos, '}')) return grammarError("Missing \'}\'", pos);
+	if (eat(str, pos, '*')) return TRUE;
+	return TRUE;
+}
+
+int parseCharList(char* str, int* pos) {
+    parseWhiteSpace(str, pos, TRUE);
+    if (peek(str, pos, '(')) {
+		if (!eat(str, pos, '(')) return grammarError("Missing \'(\', Expected Character Range", pos);
+        parseWhiteSpace(str, pos, FALSE);
+		if (!parseCharRange(str, pos)) return FALSE;
+        parseWhiteSpace(str, pos, FALSE);
+		if (!eat(str, pos, ')')) return grammarError("Missing \')\', Expected Character Range", pos);
+	}
+	else {
+		if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+		if (!parseStringToken(str, pos)) return FALSE;
+		if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+	}
+    parseWhiteSpace(str, pos, TRUE);
+    if (eat(str, pos, ',')) {
+        if (!parseCharList(str, pos, 0)) return FALSE;
+    }
+    return TRUE;
+}
+
+int parseCharRange(char *str, int* pos) {
+	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+	if (!parseStringToken(str, pos)) return FALSE;
+	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+    parseWhiteSpace(str, pos, FALSE);
+	if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos);
+	if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos);
+    if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos);
+    parseWhiteSpace(str, pos, FALSE);
+	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+	if (!parseStringToken(str, pos)) return FALSE;
+	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+	return TRUE;
+}
+
+
+void parseWhiteSpace(char* str, int* pos, int newlines) {
+    if (newlines) {
+		while (eat(str, pos, ' ') || eat(str, pos, '\t') || eat(str, pos, '\n') || eat(str, pos, '\r'));
+	}
+    else
+    {
+        while (eat(str, pos, ' ') || eat(str, pos, '\t') || eat(str, pos, '\r'));
+    }
+}
+
+int eat(char* str, int* pos, char c) {
+	if (((*pos) < strlen(str)) && str[*pos] == c) {
+		(*pos)++;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+int eatString(char* str, int* pos, char* s) {
+	int i;
+	for (i = 0; i < strlen(s); i++) {
+		if (!eat(str, pos, s[i])) return FALSE;
+	}
+	return TRUE;
+}
+
+int peek(char* str, int* pos, char c) {
+	if (((*pos) < strlen(str)) && str[*pos] == c) {
+		return TRUE;
+	}
+	return FALSE;
+}
