@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <crtdbg.h>
-#include "charsetlist.h"
-#include "grammarformatparser.h"
 
 int main1(int argc, char* argv[]) {
 

@@ -1,12 +1,26 @@
 #include <stdio.h>
 #include <stdarg.h>
-
-#include <stack.h>
 #include <string.h>
+
+#include "stack.h"
+
+typedef struct Range {
+	char min;
+	char max;
+} Range;
 
 // Pushes a character to a character set
 // A character set is a stack of characters
-void pushToCharSet(Node** charset, char* c);
+void pushCharToCharSet(Node** charset, char* c);
+
+// Pushes a character range to a character set
+// A character set is a stack of characters
+void pushRangeToCharSet(Node** charset, char* end1, char* end2);
+
+// Pushes a range to a character set
+// A character range is a range of characters
+// min and max are inclusive
+void pushRangeToCharSet(Node** charset, char* min, char *max);
 
 // A list of Character sets
 // Character sets are a form of regular expressions
