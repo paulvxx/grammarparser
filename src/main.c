@@ -32,27 +32,23 @@ int main(int argc, char* argv[]) {
 	push(&list, data2);
 	push(&list, data3);
 
-	printf("Before deletion: \n");
 	Node* it = list;
 	while (it != NULL) {
 		printf("%d ->", *(int*)(it->data.data));
 		it = it->next;
 	}
 
+	//pop_back(&list);
 	pop_back(&list);
+	pop_back(&list);
+	pop(&list);
 	printf("\n");
 	it = list;
 	// print the list
-	printf("After deletion: \n");
-	printf("Size: %d\n", size(list));
-	int i = 0;
 	while (it != NULL) {
-		printf("%d ", i);
 		printf("%d ->", *(int*)(it->data.data));
 		it = it->next;
-		i++;
 	}
-
 
 	return 0;
 }

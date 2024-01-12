@@ -22,6 +22,9 @@ Data* pop(Node** stack) {
 	return data;
 }
 
+
+// could serve as a queue in some cases
+// adds an element to the back of the stack
 void push_back(Node** stack, Data data) {
 	if (isEmpty(*stack)) {
 		push(stack, data);
@@ -35,19 +38,26 @@ void push_back(Node** stack, Data data) {
 		n = n->next;
 	}
 	n->next = new_node;
-}
+}  
 
+// could serve as a queue in some cases
+// removes an element from the back of the stack
 Data* pop_back(Node** stack) {
 	if (isEmpty(*stack)) return NULL;
+
+	// Only one node in the list
+	if ((*stack)->next == NULL) return pop(stack);
+
 	Node* n = *stack;
-	while (n->next != NULL) {
+	// Traverse the list until the second-to-last node
+	while (n->next->next != NULL) {
 		n = n->next;
 	}
-	if (n->next == NULL) printf("test\n");
-	Data* data = &(n->data);
-	free(n);
-	n = NULL;
-	if (n == NULL) printf("test\n");
+
+	Node* last = n->next;
+	Data* data = &(last->data);
+	free(last);
+	n->next = NULL;  // Set the next pointer of the second-to-last node to NULL
 	return data;
 }
 
@@ -68,17 +78,3 @@ int isEmpty(Node* stack) {
 	return stack == NULL;
 }
 
-void printStringStack(Node* stack) {
-	while (stack != NULL) {
-		if (stack->data.type=="string") {
-			printf("%s\n", (char*)stack->data.data);
-		}
-		if (stack->data.type == "terminal") {
-			printf("%s\n", (char*)stack->data.data);
-		}
-		if (stack->data.type == "nonTerminal") {
-			printf("%s\n", (char*)stack->data.data);
-		}
-		stack = stack->next;
-	}
-}
