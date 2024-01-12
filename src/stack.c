@@ -17,6 +17,9 @@ Data* pop(Node** stack) {
 	if (isEmpty(*stack)) return NULL;
 	Node* temp = *stack;
 	Data* data = &(temp->data);
+	if (strcmp(data->type, "range")==0) {
+		printf("%d check\n", size(*stack));
+	}
 	*stack = temp->next;
 	free(temp);
 	return data;

@@ -32,6 +32,9 @@ int main(int argc, char* argv[]) {
 	printCharSet(charset2, 1);
 	printf("\n");
 
+	char c8 = '0';
+	char c9 = '9';
+	pushRangeToCharSet(&charset2, &c8, &c9);
 	
 	Node* charsetList = NULL;
 
@@ -48,9 +51,16 @@ int main(int argc, char* argv[]) {
 	pop(&charset2);
 	pop(&charset2);
 	pop(&charset2);
+	Data *d = pop(&charset2);
+	if (d->data != NULL) {
+		free(d->data);
+	}
 
-	pop(&charsetList);
-	pop(&charsetList);
+
+	//Data *d = pop(&charset2);
+	//free(d->data);
+	//pop(&charsetList);
+	//pop(&charsetList);
 
 	return 0;
 }

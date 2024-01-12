@@ -65,20 +65,20 @@ Node* current = charsetList;
 			if (minesc) {
 				// min and max are both escaped
 				if (maxesc) {
-					printf("\'\\%c\' - \'\\%c\'", r.min, r.max);
+					printf("(\'\\%c\' ... \'\\%c\')", r.min, r.max);
 				}
 				// only min is escaped
 				else {
-					printf("\'\\%c\' - \'%c\'", r.min, r.max);
+					printf("(\'\\%c\' ... \'%c\')", r.min, r.max);
 				}
 			}
 			// only max is escaped
 			else if (maxesc) {
-				printf("\'%c\' - \'\\%c\'", r.min, r.max);
+				printf("(\'%c\' ... \'\\%c\')", r.min, r.max);
 			}
 			// neither are escaped
 			else {
-				printf("\'%c\' - \'%c\'", r.min, r.max);
+				printf("(\'%c\' ... \'%c\')", r.min, r.max);
 			}
 			//printf("\'%c\' - \'%c\'", r.min, r.max);
 			if (current->next != NULL) printf(", ");
