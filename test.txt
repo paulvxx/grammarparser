@@ -1,1 +1,6 @@
-Example stuff.
+[A, B, C, D]
+
+A ::= "ab" | "c" B | "aadac";
+B ::= "a" | "b" | "c" A | {'a', 'b', 'c'} {'a', 'b'}* {('a' ... 'z'), ('A' ... 'Z')};
+C ::= "a" | "b" | "c" A | "d";
+D ::= "abc" C | "acc" A | "aaaa" | "bbbb" | "cccc";
