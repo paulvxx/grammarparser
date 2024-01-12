@@ -67,6 +67,12 @@ int parseCharList(char* str, int* pos);
 //<CharRange> ::= '\'' # <StringToken> # '\'' '...' '\'' # <StringToken> # '\''
 int parseCharRange(char* str, int* pos);
 
+// parses a comment
+void parseComment(char* str, int* pos);
+
+// parses whitespace and comments together
+void parseWhiteSpaceAndComments(char* str, int* pos);
+
 // parses whitespace
 // newlines = 1 if newlines are allowed, 0 if not
 void parseWhiteSpace(char* str, int* pos, int newlines);

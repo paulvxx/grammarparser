@@ -1,6 +1,17 @@
-[A, B, C, D]
+!! This is a comment
+[A, B, C, D]   !! This is another comment
+
+!! Another comment
 
 A ::= "ab" | "c" B | "aadac";
 B ::= "a" | "b" | "c" A | {'a', 'b', 'c'} {'a', 'b'}* {('a' ... 'z'), ('A' ... 'Z')};
-C ::= "a" | "b" | "c" A | "d";
+ 
+   
+!! Another comment here     
+!! Another comment here  
+
+!! Test comment
+
+C ::= "a" | "b" | "c" A | 
+"d"; !! Test comment
 D ::= "abc" C | "acc" A | "aaaa" | "bbbb" | "cccc";

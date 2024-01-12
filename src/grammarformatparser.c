@@ -9,6 +9,9 @@
 
 // (Note: White space is generally ignored, a '#' symbol denotes no whitespace is allowed)
 // (Note: '' deontes an empty string)
+// (Note: Comments are allowed and start with two '!!' marks, and end with a newline character)
+// Comments may occur after the '::=' or '|' symbols, after a ';' symbol, before the list of rules (before and after the
+// initializer list of Non-Terminals).
 // EXPECTED FORMAT:
 //<Grammar> ::= <NonTerminalInit> '\n' <ListOfRules>
 //<NonTerminalInit> ::= '[' <ListOfNonTerminals> ']' 
@@ -92,12 +95,14 @@ char* parseFile(char* filename) {
 
 // <Grammar> ::= <ListOfNonTerminals> '\n' <ListOfRules>
 parseGrammar(char* str, int *pos) {
-    parseWhiteSpace(str, pos, TRUE);
+    //parseWhiteSpace(str, pos, TRUE);
+    parseWhiteSpaceAndComments(str, pos);
     if (!parseNonTerminalInit(str, pos)) return FALSE;
-    //printf("Good\n");
     parseWhiteSpace(str, pos, FALSE);
-    if (!eat(str, pos, '\n')) return FALSE;
-    //printf("Good\n");
+    if ((*pos) + 1 < strlen(str) && str[*pos] == '!' && str[(*pos) + 1] == '!') {
+        parseComment(str, pos);
+    }
+    else if (!eat(str, pos, '\n')) return FALSE;
     if (!parseListOfRules(str, pos)) return FALSE;
     return TRUE;
 }
@@ -120,9 +125,9 @@ int parseListOfNonTerminals(char* str, int* pos) {
 }
 
 int parseListOfRules(char* str, int* pos) {
-	parseWhiteSpace(str, pos, TRUE);
+    parseWhiteSpaceAndComments(str, pos);
 	if (!parseRule(str, pos)) return FALSE;
-	parseWhiteSpace(str, pos, TRUE);
+    parseWhiteSpaceAndComments(str, pos);
 	if ((*pos) < strlen(str)) {
 		if (!parseListOfRules(str, pos)) return FALSE;
 	}
@@ -138,12 +143,15 @@ int parseRule(char* str, int* pos) {
 	if (!parseListOfProductions(str, pos)) return FALSE;
 	if (!eat(str, pos, ';')) return grammarError("Missing \';\'", pos);
     parseWhiteSpace(str, pos, FALSE);
-	if (!eat(str, pos, '\n')) return grammarError("Missing newline character", pos);
+    if ((*pos) + 1 < strlen(str) && str[*pos] == '!' && str[(*pos) + 1] == '!') {
+        parseComment(str, pos);
+    }
+	else if (!eat(str, pos, '\n')) return grammarError("Missing newline character", pos);
 	return TRUE;
 }
 
 int parseListOfProductions(char* str, int* pos) {
-    parseWhiteSpace(str, pos, TRUE);
+    parseWhiteSpaceAndComments(str, pos);
     if (!parseProductionSequence(str, pos)) return FALSE;
     parseWhiteSpace(str, pos, TRUE);
     // logical OR (choice)
@@ -241,7 +249,7 @@ int parseCharSetList(char* str, int* pos) {
 
 int parseCharSet(char* str, int* pos) {
 	if (!eat(str, pos, '{')) return grammarError("Missing \'{\'", pos);
-	if (!parseCharList(str, pos, 0)) return FALSE;
+	if (!parseCharList(str, pos)) return FALSE;
 	if (!eat(str, pos, '}')) return grammarError("Missing \'}\'", pos);
 	if (eat(str, pos, '*')) return TRUE;
 	return TRUE;
@@ -263,7 +271,7 @@ int parseCharList(char* str, int* pos) {
 	}
     parseWhiteSpace(str, pos, TRUE);
     if (eat(str, pos, ',')) {
-        if (!parseCharList(str, pos, 0)) return FALSE;
+        if (!parseCharList(str, pos)) return FALSE;
     }
     return TRUE;
 }
@@ -294,6 +302,25 @@ void parseWhiteSpace(char* str, int* pos, int newlines) {
     }
 }
 
+void parseComment(char* str, int* pos) {
+    if (eat(str, pos, '!') && eat(str, pos, '!')) {
+        while (!eat(str, pos, '\n')) {
+            (*pos)++;
+        };
+    }
+}
+
+void parseWhiteSpaceAndComments(char* str, int* pos) {
+    while (eat(str, pos, ' ') || eat(str, pos, '\t') || eat(str, pos, '\n') || eat(str, pos, '\r') || peek(str, pos, '!')) {
+		if (((*pos)+1) < strlen(str) && str[*pos]=='!' && str[(*pos)+1]=='!') {
+			parseComment(str, pos);
+		}
+        else {
+            parseWhiteSpace(str, pos, TRUE);
+        }
+    }
+}
+
 int eat(char* str, int* pos, char c) {
 	if (((*pos) < strlen(str)) && str[*pos] == c) {
 		(*pos)++;
@@ -316,3 +343,4 @@ int peek(char* str, int* pos, char c) {
 	}
 	return FALSE;
 }
+
