@@ -10,7 +10,7 @@
 // (Note: White space is generally ignored, a '#' symbol denotes no whitespace is allowed)
 // (Note: '' deontes an empty string)
 // (Note: Comments are allowed and start with two '!!' marks, and end with a newline character)
-// Comments may occur after the '::=' or '|' symbols, after a ';' symbol, before the list of rules (before and after the
+// Comments may occur after a rule list, the '::=' indicator or the '|' symbol, after a ';' symbol, before the list of rules (before and after the
 // initializer list of Non-Terminals).
 // EXPECTED FORMAT:
 //<Grammar> ::= <NonTerminalInit> '\n' <ListOfRules>
