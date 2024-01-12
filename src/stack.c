@@ -22,12 +22,43 @@ Data* pop(Node** stack) {
 	return data;
 }
 
+void push_back(Node** stack, Data data) {
+	if (isEmpty(*stack)) {
+		push(stack, data);
+		return;
+	}
+	Node* new_node = (Node*)malloc(sizeof(Node));
+	new_node->data = data;
+	new_node->next = NULL;
+	Node *n = *stack;
+	while (n->next != NULL) {
+		n = n->next;
+	}
+	n->next = new_node;
+}
+
+Data* pop_back(Node** stack) {
+	if (isEmpty(*stack)) return NULL;
+	Node* n = *stack;
+	while (n->next != NULL) {
+		n = n->next;
+	}
+	if (n->next == NULL) printf("test\n");
+	Data* data = &(n->data);
+	free(n);
+	n = NULL;
+	if (n == NULL) printf("test\n");
+	return data;
+}
+
+
 // get the size of the stack
 int size(Node* stack) {
 	int size = 0;
-	while (stack != NULL) {
+	Node* n = stack;
+	while (n != NULL) {
 		size++;
-		stack = stack->next;
+		n = n->next;
 	}
 	return size;
 }

@@ -22,11 +22,16 @@ void push(Node** stack, Data data);
 // remove an element from the stack
 Data* pop(Node** stack);
 
+// may also serve as a queue in some cases
+
+// adds an element to the back of the stack
+void push_back(Node** stack, Data data);
+
+// removes an element from the back of the stack
+Data* pop_back(Node** stack);
+
 // get the size of the stack
 int size(Node* stack);
 
 // check if the stack is empty
 int isEmpty(Node * stack);
-
-// print the stack
-void printStack(Node* stack);
