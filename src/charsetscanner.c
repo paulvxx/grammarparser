@@ -8,15 +8,16 @@
 
 
 int scanCharSet(Node** charsetList, int charsetAt, char* str, int* pos, int matchEnd) {
+	printf("%d %d\n", charsetAt, size(*charsetList));
 	if (isEmpty(*charsetList)) return TRUE;
-	if (charsetAt < 0 || charsetAt > size(charsetList)) return FALSE;
+	if (charsetAt < 0 || charsetAt > size(*charsetList)) return FALSE;
 
 	// no more character sets left to scan
 	// if matchEnd is true, then return whether or 
 	// not the end of the string was reached
 	// otherwise just return TRUE
-	if (charsetAt == size(charsetList)) {
-		if (matchEnd) return (strlen(str) == pos);
+	if (charsetAt == size(*charsetList)) {
+		if (matchEnd) return (strlen(str) == (*pos));
 		else return TRUE;
 	}
 
@@ -66,7 +67,8 @@ int scanCharSet(Node** charsetList, int charsetAt, char* str, int* pos, int matc
 	}
 	// scan single character from set
 	else {
-		if ((*pos) < strlen(str)) return FALSE;
+		//printf("HERE!!! %d %d\n",(*pos), strlen(str));
+		if ((*pos) >= strlen(str)) return FALSE;
 		int charMatched = FALSE;
 		// scan the string once
 		Node* curr = charset;
@@ -86,6 +88,7 @@ int scanCharSet(Node** charsetList, int charsetAt, char* str, int* pos, int matc
 			}
 			curr = curr->next;
 		}
+		printf("HERE!!!\n");
 		if (!charMatched) return FALSE;
 		(*pos)++;
 		// scan the next character set
@@ -94,4 +97,3 @@ int scanCharSet(Node** charsetList, int charsetAt, char* str, int* pos, int matc
 	printf("Never should be reached!\n");
 	return FALSE;
 }
-

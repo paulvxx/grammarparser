@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <crtdbg.h>
-#include "charsetlist.h"
+#include "charsetscanner.h"
 
 int main(int argc, char* argv[]) {
 
@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 	char c = 'a';
 	char c2 = 'b';
 	char c3 = 'c';
-	char c4 = 'd';
+	char c4 = 'l';
 	// Create a new character list
 	Node* charset = NULL;
 	pushCharToCharSet(&charset, &c);
@@ -45,9 +45,17 @@ int main(int argc, char* argv[]) {
 
 	printf("size; %d\n", size(charsetList));
 
-	popCharSet(&charsetList);
+
+	int pos = 0;
+
+	scanCharSet(&charsetList, 0, "add", &pos, 1);
+
+
+	// FREE MEMORY
+
+	//popCharSet(&charsetList);
 	//deleteAllCharSet(&charset2);
-	deleteAllCharSetList(&charsetList);
+	//deleteAllCharSetList(&charsetList);
 
 	//pop(&charset);
 	//pop(&charset);

@@ -16,7 +16,7 @@
 // matchEnd - if true, the entire string must match the regular expression
 // otherwise, only a substring (starting at index pos) 
 // of the string must match the regular expression
-int scanCharSetList(Node **charsetList, char *str, int *pos, int matchEnd);
+//int scanCharSetList(Node **charsetList, char *str, int *pos, int matchEnd);
 
 
 // scans a signle character set recursively (in the context of a character set list)
