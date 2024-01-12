@@ -19,8 +19,11 @@ typedef struct Node {
 // add an element to the stack
 void push(Node** stack, Data data);
 
+// get data at specified index
+Data get(Node** stack, int index);
+
 // remove an element from the stack
-Data* pop(Node** stack);
+Data pop(Node** stack);
 
 // may also serve as a queue in some cases
 
@@ -28,7 +31,7 @@ Data* pop(Node** stack);
 void push_back(Node** stack, Data data);
 
 // removes an element from the back of the stack
-Data* pop_back(Node** stack);
+Data pop_back(Node** stack);
 
 // get the size of the stack
 int size(Node* stack);

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <crtdbg.h>
+#include "stack.h"
 
 int main1(int argc, char* argv[]) {
 
@@ -46,6 +47,30 @@ int main1(int argc, char* argv[]) {
 	//	printf("%d ->", *(int*)(it->data.data));
 	//	it = it->next;
 	//}
+
+	int d = 33;
+	int d2 = 129;
+	int d3 = 111;
+	int d4 = 100;
+	Data data = { "integer", &d };
+	Data data2 = { "integer", &d2 };
+	Data data3 = { "integer", &d3 };
+	Data data4 = { "integer", &d4 };
+
+	Node* stack = NULL;
+	push(&stack, data);
+	push(&stack, data2);
+	push(&stack, data3);
+	push(&stack, data4);
+
+	get(&stack, 0);
+
+	printf("%d\n", *(int*)get(&stack, 2).data);
+
+	pop(&stack);
+	pop(&stack);
+	pop(&stack);
+	pop(&stack);
 
 	return 0;
 }

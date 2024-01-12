@@ -13,13 +13,24 @@ void push(Node** stack, Data data) {
 }
 
 // remove an element from the stack
-Data* pop(Node** stack) {
-	if (isEmpty(*stack)) return NULL;
-	Node* temp = *stack;
-	Data* data = &(temp->data);
-	if (strcmp(data->type, "range")==0) {
-		printf("%d check\n", size(*stack));
+Data get(Node** stack, int index) {
+	if (isEmpty(*stack)) return (Data) {NULL, NULL};
+	Node* n = *stack;
+	int i = 0;
+	while (i < index && n != NULL) {
+		n = n->next;
+		i++;
 	}
+	if (n == NULL) return (Data) {NULL, NULL};
+	return n->data;
+}
+
+
+// remove an element from the stack
+Data pop(Node** stack) {
+	if (isEmpty(*stack)) return (Data) {NULL, NULL};
+	Node* temp = *stack;
+	Data data = temp->data;
 	*stack = temp->next;
 	free(temp);
 	return data;
@@ -45,8 +56,8 @@ void push_back(Node** stack, Data data) {
 
 // could serve as a queue in some cases
 // removes an element from the back of the stack
-Data* pop_back(Node** stack) {
-	if (isEmpty(*stack)) return NULL;
+Data pop_back(Node** stack) {
+	if (isEmpty(*stack)) return (Data){NULL, NULL};
 
 	// Only one node in the list
 	if ((*stack)->next == NULL) return pop(stack);
@@ -58,7 +69,7 @@ Data* pop_back(Node** stack) {
 	}
 
 	Node* last = n->next;
-	Data* data = &(last->data);
+	Data data = last->data;
 	free(last);
 	n->next = NULL;  // Set the next pointer of the second-to-last node to NULL
 	return data;

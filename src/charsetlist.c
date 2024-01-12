@@ -30,7 +30,7 @@ void pushRangeToCharSet(Node** charset, char* end1, char* end2) {
 	push_back(charset, data);
 }
 
-// Adds a character to the current set of CharSets (as a stack)
+
 void pushToCharSetList(Node** charsetList, Node** charset, int repeats) {
 	Data data;
 	if (repeats) {
@@ -42,6 +42,35 @@ void pushToCharSetList(Node** charsetList, Node** charset, int repeats) {
 	data.data = charset;
 	push_back(charsetList, data);
 };
+
+
+void deleteAllCharSet(Node** charset) {
+	while (!isEmpty(*charset)) {
+		popChar(charset);
+	}
+}
+
+
+void popChar(Node** charset) {
+	Data data = pop(charset);
+	if (strcmp(data.type, "range") == 0) {
+		Range* r = (Range*)data.data;
+		free(r);
+	}
+}
+
+
+void deleteAllCharSetList(Node** charsetList) {
+	while (!isEmpty(*charsetList)) {
+		popCharSet(charsetList);
+	}
+}
+
+// deletes the first character set of the character set list
+void popCharSet(Node** charsetList) {
+	deleteAllCharSet((Node**)(*charsetList)->data.data);
+	pop(charsetList);
+}
 
 // Prints a character set
 void printCharSet(Node* charsetList, int repeated) {

@@ -28,6 +28,18 @@ void pushRangeToCharSet(Node** charset, char* min, char *max);
 // Otherwise, the character set will parse only once (0)
 void pushToCharSetList(Node** charsetList, Node** charset, int repeats);
 
+// deletes the entire Character Set
+void deleteAllCharSet(Node** charset);
+
+// deletes the first element of the Character Set
+void popChar(Node** charset);
+
+// deletes the entire Character set list
+void deleteAllCharSetList(Node** charsetList);
+
+// deletes the first character set of the character set list
+void popCharSet(Node** charsetList);
+
 // Prints a character set
 // repeated = 1 to print Kleene Start
 // otherwise not

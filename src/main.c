@@ -43,19 +43,29 @@ int main(int argc, char* argv[]) {
 
 	printCharSetList(charsetList);
 
-	pop(&charset);
-	pop(&charset);
-	pop(&charset);
-	pop(&charset);
+	printf("size; %d\n", size(charsetList));
 
-	pop(&charset2);
-	pop(&charset2);
-	pop(&charset2);
-	Data *d = pop(&charset2);
-	if (d->data != NULL) {
-		free(d->data);
-	}
+	popCharSet(&charsetList);
+	//deleteAllCharSet(&charset2);
+	deleteAllCharSetList(&charsetList);
 
+	//pop(&charset);
+	//pop(&charset);
+	//pop(&charset);
+	//pop(&charset);
+
+	//pop(&charset2);
+	//pop(&charset2);
+	//pop(&charset2);
+	//Data rng = pop(&charset2);
+	//if (rng.type == "range") {
+	//	printf("Range: %c - %c\n", ((Range*)rng.data)->min, ((Range*)rng.data)->max);
+	//	Range* r = (Range*)rng.data;
+	//	free(r);
+	//	pop(&charset2);
+	//};
+
+	//printf("%s\n", d->type);
 
 	//Data *d = pop(&charset2);
 	//free(d->data);
