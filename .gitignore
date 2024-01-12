@@ -1,0 +1,7 @@
+*.vsidx
+/.vs
+/x64
+RecursiveDecentParser.sln
+RecursiveDecentParser.vcxproj
+RecursiveDecentParser.vcxproj.filters
+RecursiveDecentParser.vcxproj.user
