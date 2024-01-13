@@ -8,7 +8,7 @@
 
 
 int scanCharSet(Node** charsetList, int charsetAt, char* str, int* pos, int matchEnd) {
-	printf("%d %d\n", charsetAt, size(*charsetList));
+	// check if charlist is empty or index out of bounds
 	if (isEmpty(*charsetList)) return TRUE;
 	if (charsetAt < 0 || charsetAt > size(*charsetList)) return FALSE;
 
@@ -17,17 +17,21 @@ int scanCharSet(Node** charsetList, int charsetAt, char* str, int* pos, int matc
 	// not the end of the string was reached
 	// otherwise just return TRUE
 	if (charsetAt == size(*charsetList)) {
-		if (matchEnd) return (strlen(str) == (*pos));
-		else return TRUE;
+		if (matchEnd)  { return (strlen(str) == (*pos)); }
+		else {
+			return TRUE;
+		}
 	}
 
-	Node* charset = get(charsetList, charsetAt).data;
-	char *repeats = get(charsetList, charsetAt).type;
+	Node* charset = get(*charsetList, charsetAt).data;
+	char *repeats = get(*charsetList, charsetAt).type;
+
 
 	// if charset is empty, return false
 	if (isEmpty(charset)) return FALSE;
 
 	// check for repeating character set
+
 
 	// scan multiple characters from set
 	if (strcmp("repeated", repeats) == 0) {
@@ -37,10 +41,11 @@ int scanCharSet(Node** charsetList, int charsetAt, char* str, int* pos, int matc
 		if (scanCharSet(charsetList, charsetAt + 1, str, pos, matchEnd)) return TRUE;
 		(*pos) = oldPos;
 
+
 		int NoneLeft = FALSE;
 		while ((*pos) < strlen(str) && !NoneLeft) {
 			int charMatched = FALSE;
-			// scan the string once
+			// continue scanning until we find a character that is not in the repeating set
 			Node* curr = charset;
 			while (curr != NULL && !charMatched) {
 				Data data = curr->data;
@@ -51,29 +56,39 @@ int scanCharSet(Node** charsetList, int charsetAt, char* str, int* pos, int matc
 					}
 				}
 				else {
-					char* c = (char*)data.data;
-					if (str[(*pos)] == (*c)) {
+					char c = *(char*)curr->data.data;
+					// found a matching character
+					if (str[(*pos)] == (c)) {
 						charMatched = TRUE;
 					}
 				}
 				curr = curr->next;
 			}
 			NoneLeft = !charMatched;
-			(*pos)++;
-			oldPos = (*pos);
-			if (scanCharSet(charsetList, charsetAt + 1, str, pos, matchEnd)) return TRUE;
-			(*pos) = oldPos;
+			// matched a signle character from a repeating character set
+			if (!NoneLeft) {
+				(*pos)++;;
+				oldPos = (*pos);
+				// scan the next character set (since we do not need to scan all the way through)
+				if (scanCharSet(charsetList, charsetAt + 1, str, pos, matchEnd)) return TRUE;
+				// backtrack if necessary
+				(*pos) = oldPos;
+			}
 		}
 	}
 	// scan single character from set
 	else {
-		//printf("HERE!!! %d %d\n",(*pos), strlen(str));
 		if ((*pos) >= strlen(str)) return FALSE;
 		int charMatched = FALSE;
 		// scan the string once
 		Node* curr = charset;
+
+		// scan all characters to see if one matches
 		while (curr != NULL && !charMatched) {
 			Data data = curr->data;
+			if (data.data==NULL && data.type==NULL) printf("NULL !!!!!!\n");
+			
+			// check if the character is in the range
 			if (strcmp(data.type, "range") == 0) {
 				Range* r = (Range*)data.data;
 				if (str[(*pos)] >= r->min && str[(*pos)] <= r->max) {
@@ -81,19 +96,22 @@ int scanCharSet(Node** charsetList, int charsetAt, char* str, int* pos, int matc
 				}
 			}
 			else {
-				char* c = (char*)data.data;
-				if (str[(*pos)] == (*c)) {
+				char c = *(char*) curr->data.data;
+				if (str[(*pos)] == (c)) {
+					// found a matching character
 					charMatched = TRUE;
 				}
 			}
 			curr = curr->next;
 		}
-		printf("HERE!!!\n");
+		
+		// stop if no character matched
 		if (!charMatched) return FALSE;
 		(*pos)++;
+
 		// scan the next character set
 		return scanCharSet(charsetList, charsetAt + 1, str, pos, matchEnd);
 	}
-	printf("Never should be reached!\n");
+	//Should not be reached
 	return FALSE;
 }

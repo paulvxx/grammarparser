@@ -20,7 +20,7 @@ typedef struct Node {
 void push(Node** stack, Data data);
 
 // get data at specified index
-Data get(Node** stack, int index);
+Data get(Node* stack, int index);
 
 // remove an element from the stack
 Data pop(Node** stack);

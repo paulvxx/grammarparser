@@ -13,9 +13,9 @@ void push(Node** stack, Data data) {
 }
 
 // remove an element from the stack
-Data get(Node** stack, int index) {
-	if (isEmpty(*stack)) return (Data) {NULL, NULL};
-	Node* n = *stack;
+Data get(Node* stack, int index) {
+	if (isEmpty(stack)) return (Data) {NULL, NULL};
+	Node* n = stack;
 	int i = 0;
 	while (i < index && n != NULL) {
 		n = n->next;

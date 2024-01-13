@@ -26,7 +26,7 @@ void pushRangeToCharSet(Node** charset, char* min, char *max);
 // Character sets are a form of regular expressions
 // If repeats is true (1), the character set may repeated (Kleene star)
 // Otherwise, the character set will parse only once (0)
-void pushToCharSetList(Node** charsetList, Node** charset, int repeats);
+void pushToCharSetList(Node** charsetList, Node* charset, int repeats);
 
 // deletes the entire Character Set
 void deleteAllCharSet(Node** charset);

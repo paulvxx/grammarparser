@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 	char c = 'a';
 	char c2 = 'b';
 	char c3 = 'c';
-	char c4 = 'l';
+	char c4 = 'd';
 	// Create a new character list
 	Node* charset = NULL;
 	pushCharToCharSet(&charset, &c);
@@ -21,41 +21,75 @@ int main(int argc, char* argv[]) {
 	printCharSet(charset, 0);
 	printf("\n");
 
-	char c5 = 'd';
-	char c6 = 'e';
+	char c5 = 'e';
+	char c6 = 'f';
 	char c7 = 'g';
 	// Create a new character list
 	Node* charset2 = NULL;
 	pushCharToCharSet(&charset2, &c5);
 	pushCharToCharSet(&charset2, &c6);
 	pushCharToCharSet(&charset2, &c7);
-	printCharSet(charset2, 1);
 	printf("\n");
 
-	char c8 = '0';
-	char c9 = '9';
+	char c8 = 'h';
+	char c9 = 'z';
 	pushRangeToCharSet(&charset2, &c8, &c9);
-	
+	printCharSet(charset2, 1);
+	printf("\n\n");
+
 	Node* charsetList = NULL;
 
-	pushToCharSetList(&charsetList, &charset, 0);
-	pushToCharSetList(&charsetList, &charset2, 1);
+
+	char c10 = 'e';
+	char c11 = 'f';
+	char c12 = 'g';
+	// Create a new character list
+	Node* charset3 = NULL;
+	pushCharToCharSet(&charset3, &c10);
+	pushCharToCharSet(&charset3, &c11);
+	pushCharToCharSet(&charset3, &c12);
+	printCharSet(charset3, 0);
+	printf("\n");
+
+	pushToCharSetList(&charsetList, charset, 0);
+	pushToCharSetList(&charsetList, charset2, 1);
+	pushToCharSetList(&charsetList, charset3, 0);
 
 	printCharSetList(charsetList);
 
-	printf("size; %d\n", size(charsetList));
+	//printf("size; %d\n", size(charsetList));
 
 
 	int pos = 0;
 
-	scanCharSet(&charsetList, 0, "add", &pos, 1);
+	//Node* s = charsetList;
 
+	Node* charset21 = (Node*) get(charsetList, 0).data;
+	char* repeats = get(charsetList, 0).type;
+
+	//printCharSet(charset21, strcmp(repeats, "repeated") == 0);
+
+	//int i = 0;
+	//while (s != NULL) {
+	//		printCharSet(s->data.data, i);
+	//		i++;
+	//		s = s->next;
+	//}
+
+	// print each of the elements of charsetList
+	//printCharSet( get(&charsetList, 0).data, 0);
+	//printCharSet( get(&charsetList, 1).data, 1);
+
+	int a = scanCharSet(&charsetList, 0, "aeefge", &pos, 1);
+
+	if (a) printf("Found a match\n");
+	else printf("No match\n");
 
 	// FREE MEMORY
 
 	//popCharSet(&charsetList);
 	//deleteAllCharSet(&charset2);
-	//deleteAllCharSetList(&charsetList);
+	deleteAllCharSetList(&charsetList);
 
 	//pop(&charset);
 	//pop(&charset);

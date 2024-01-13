@@ -31,7 +31,7 @@ void pushRangeToCharSet(Node** charset, char* end1, char* end2) {
 }
 
 
-void pushToCharSetList(Node** charsetList, Node** charset, int repeats) {
+void pushToCharSetList(Node** charsetList, Node* charset, int repeats) {
 	Data data;
 	if (repeats) {
 		data.type = "repeated";
@@ -68,7 +68,7 @@ void deleteAllCharSetList(Node** charsetList) {
 
 // deletes the first character set of the character set list
 void popCharSet(Node** charsetList) {
-	deleteAllCharSet((Node**)(*charsetList)->data.data);
+	deleteAllCharSet(&((Node*) (*charsetList)->data.data));
 	pop(charsetList);
 }
 
@@ -129,11 +129,11 @@ void printCharSetList(Node* charsetList) {
 	Node* current = charsetList;
 	while (current != NULL) {
 		if (strcmp(current->data.type, "repeated") == 0) {
-			printCharSet(*(Node**) current->data.data, 1);
+			printCharSet((Node*) current->data.data, 1);
 			printf(" ");
 		}
 		else if (strcmp(current->data.type, "charset") == 0) {
-			printCharSet(*(Node**) current->data.data, 0);
+			printCharSet((Node*) current->data.data, 0);
 			printf(" ");
 		}
 		else {
