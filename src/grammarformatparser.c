@@ -44,14 +44,11 @@
 // C ::= "c" | "d" | "e" | "f" | "g" | "h" A;
 
 
-// To ensure only one error is printed
-int errorFlag = TRUE;
-
-int grammarError(char* msg, int *pos) {
-    if (errorFlag) {
+int grammarError(char* msg, int *pos, int *errorFlag) {
+    if (*errorFlag) {
         ERROR("%s, pos=%d\n", msg, *pos);
         // Set the error flag to false to stop printing errors
-        errorFlag = FALSE;
+        *errorFlag = FALSE;
     }
     return FALSE;
 }
@@ -94,79 +91,79 @@ char* parseFile(char* filename) {
 
 
 // <Grammar> ::= <ListOfNonTerminals> '\n' <ListOfRules>
-parseGrammar(char* str, int *pos) {
+parseGrammar(char* str, int *pos, int* errorFlag) {
     //parseWhiteSpace(str, pos, TRUE);
     parseWhiteSpaceAndComments(str, pos);
-    if (!parseNonTerminalInit(str, pos)) return FALSE;
+    if (!parseNonTerminalInit(str, pos, errorFlag)) return FALSE;
     parseWhiteSpace(str, pos, FALSE);
     if ((*pos) + 1 < strlen(str) && str[*pos] == '!' && str[(*pos) + 1] == '!') {
         parseComment(str, pos);
     }
     else if (!eat(str, pos, '\n')) return FALSE;
-    if (!parseListOfRules(str, pos)) return FALSE;
+    if (!parseListOfRules(str, pos, errorFlag)) return FALSE;
     return TRUE;
 }
 
-int parseNonTerminalInit(char* str, int* pos) {
-	if (!eat(str, pos, '[')) return grammarError("Missing \'[\'", pos);
-	if (!parseListOfNonTerminals(str, pos)) return FALSE;
-	if (!eat(str, pos, ']')) return grammarError("Missing \']\'", pos);
+int parseNonTerminalInit(char* str, int* pos, int* errorFlag) {
+	if (!eat(str, pos, '[')) return grammarError("Missing \'[\'", pos, errorFlag);
+	if (!parseListOfNonTerminals(str, pos, errorFlag)) return FALSE;
+	if (!eat(str, pos, ']')) return grammarError("Missing \']\'", pos, errorFlag);
 	return TRUE;
 }
 
-int parseListOfNonTerminals(char* str, int* pos) {
+int parseListOfNonTerminals(char* str, int* pos, int* errorFlag) {
     parseWhiteSpace(str, pos, TRUE);
     if (!parseNonTerminal(str, pos)) return FALSE;
     parseWhiteSpace(str, pos, TRUE);
     if (eat(str, pos, ',')) {
-        if (!parseListOfNonTerminals(str, pos)) return FALSE;
+        if (!parseListOfNonTerminals(str, pos, errorFlag)) return FALSE;
     }
     return TRUE;
 }
 
-int parseListOfRules(char* str, int* pos) {
+int parseListOfRules(char* str, int* pos, int* errorFlag) {
     parseWhiteSpaceAndComments(str, pos);
-	if (!parseRule(str, pos)) return FALSE;
+	if (!parseRule(str, pos, errorFlag)) return FALSE;
     parseWhiteSpaceAndComments(str, pos);
 	if ((*pos) < strlen(str)) {
-		if (!parseListOfRules(str, pos)) return FALSE;
+		if (!parseListOfRules(str, pos, errorFlag)) return FALSE;
 	}
 	return TRUE;
 }
 
-int parseRule(char* str, int* pos) {
-	if (!parseNonTerminal(str, pos)) return grammarError("Missing Starting Symbol for Rule", pos);;
+int parseRule(char* str, int* pos, int* errorFlag) {
+	if (!parseNonTerminal(str, pos)) return grammarError("Missing Starting Symbol for Rule", pos, errorFlag);
     parseWhiteSpace(str, pos, FALSE);
-	if (!eat(str, pos, ':')) return grammarError("Missing \':\'", pos);
-	if (!eat(str, pos, ':')) return grammarError("Missing \':\'", pos);
-	if (!eat(str, pos, '=')) return grammarError("Missing \'=\'", pos);
-	if (!parseListOfProductions(str, pos)) return FALSE;
-	if (!eat(str, pos, ';')) return grammarError("Missing \';\'", pos);
+	if (!eat(str, pos, ':')) return grammarError("Missing \':\'", pos, errorFlag);
+	if (!eat(str, pos, ':')) return grammarError("Missing \':\'", pos, errorFlag);
+	if (!eat(str, pos, '=')) return grammarError("Missing \'=\'", pos, errorFlag);
+	if (!parseListOfProductions(str, pos, errorFlag)) return FALSE;
+	if (!eat(str, pos, ';')) return grammarError("Missing \';\'", pos, errorFlag);
     parseWhiteSpace(str, pos, FALSE);
     if ((*pos) + 1 < strlen(str) && str[*pos] == '!' && str[(*pos) + 1] == '!') {
         parseComment(str, pos);
     }
-	else if (!eat(str, pos, '\n')) return grammarError("Missing newline character", pos);
+	else if (!eat(str, pos, '\n')) return grammarError("Missing newline character", pos, errorFlag);
 	return TRUE;
 }
 
-int parseListOfProductions(char* str, int* pos) {
+int parseListOfProductions(char* str, int* pos, int* errorFlag) {
     parseWhiteSpaceAndComments(str, pos);
-    if (!parseProductionSequence(str, pos)) return FALSE;
+    if (!parseProductionSequence(str, pos, errorFlag)) return FALSE;
     parseWhiteSpace(str, pos, TRUE);
     // logical OR (choice)
 	if (!eat(str, pos, '|')) return TRUE;
-	if (!parseListOfProductions(str, pos)) return grammarError("Production Rule after \'|\' cannot be blank", pos);
+	if (!parseListOfProductions(str, pos, errorFlag)) return grammarError("Production Rule after \'|\' cannot be blank", pos, errorFlag);
 	return TRUE;
 }
 
-int parseProductionSequence(char* str, int* pos) {
+int parseProductionSequence(char* str, int* pos, int *errorFlag) {
 	parseWhiteSpace(str, pos, TRUE);
-    if (parseCharSetList(str, pos));
+    if (parseCharSetList(str, pos, errorFlag));
 	else if (!parseProduction(str, pos)) return FALSE;
 	parseWhiteSpace(str, pos, TRUE);
 	// logical AND (sequence)
-	if (!parseProductionSequence(str, pos)) return TRUE;
+	if (!parseProductionSequence(str, pos, errorFlag)) return TRUE;
 	return TRUE;
 }
 
@@ -236,58 +233,58 @@ int parseStringToken(char* str, int* pos) {
     return TRUE;
 }
 
-int parseCharSetList(char* str, int* pos) {
+int parseCharSetList(char* str, int* pos, int* errorFlag) {
 	parseWhiteSpace(str, pos, TRUE);
     if (!peek(str, pos, '{')) return FALSE;
-	if (!parseCharSet(str, pos)) return FALSE;
+	if (!parseCharSet(str, pos, errorFlag)) return FALSE;
 	parseWhiteSpace(str, pos, TRUE);
     if (peek(str, pos, '{')) {
-        if (!parseCharSetList(str, pos)) return FALSE;
+        if (!parseCharSetList(str, pos, errorFlag)) return FALSE;
     }
 	return TRUE;
 }
 
-int parseCharSet(char* str, int* pos) {
-	if (!eat(str, pos, '{')) return grammarError("Missing \'{\'", pos);
-	if (!parseCharList(str, pos)) return FALSE;
-	if (!eat(str, pos, '}')) return grammarError("Missing \'}\'", pos);
+int parseCharSet(char* str, int* pos, int *errorFlag) {
+	if (!eat(str, pos, '{')) return grammarError("Missing \'{\'", pos, errorFlag);
+	if (!parseCharList(str, pos, errorFlag)) return FALSE;
+	if (!eat(str, pos, '}')) return grammarError("Missing \'}\'", pos, errorFlag);
 	if (eat(str, pos, '*')) return TRUE;
 	return TRUE;
 }
 
-int parseCharList(char* str, int* pos) {
+int parseCharList(char* str, int* pos, int* errorFlag) {
     parseWhiteSpace(str, pos, TRUE);
     if (peek(str, pos, '(')) {
-		if (!eat(str, pos, '(')) return grammarError("Missing \'(\', Expected Character Range", pos);
+		if (!eat(str, pos, '(')) return grammarError("Missing \'(\', Expected Character Range", pos, errorFlag);
         parseWhiteSpace(str, pos, FALSE);
-		if (!parseCharRange(str, pos)) return FALSE;
+		if (!parseCharRange(str, pos, errorFlag)) return FALSE;
         parseWhiteSpace(str, pos, FALSE);
-		if (!eat(str, pos, ')')) return grammarError("Missing \')\', Expected Character Range", pos);
+		if (!eat(str, pos, ')')) return grammarError("Missing \')\', Expected Character Range", pos, errorFlag);
 	}
 	else {
-		if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+		if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
 		if (!parseStringToken(str, pos)) return FALSE;
-		if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+		if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
 	}
     parseWhiteSpace(str, pos, TRUE);
     if (eat(str, pos, ',')) {
-        if (!parseCharList(str, pos)) return FALSE;
+        if (!parseCharList(str, pos, errorFlag)) return FALSE;
     }
     return TRUE;
 }
 
-int parseCharRange(char *str, int* pos) {
-	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+int parseCharRange(char *str, int* pos, int* errorFlag) {
+	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
 	if (!parseStringToken(str, pos)) return FALSE;
-	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
     parseWhiteSpace(str, pos, FALSE);
-	if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos);
-	if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos);
-    if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos);
+	if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos, errorFlag);
+	if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos, errorFlag);
+    if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos, errorFlag);
     parseWhiteSpace(str, pos, FALSE);
-	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
 	if (!parseStringToken(str, pos)) return FALSE;
-	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos);
+	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
 	return TRUE;
 }
 

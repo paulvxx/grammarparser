@@ -63,9 +63,9 @@ int main1(int argc, char* argv[]) {
 	push(&stack, data3);
 	push(&stack, data4);
 
-	get(&stack, 0);
+	get(stack, 0);
 
-	printf("%d\n", *(int*)get(&stack, 2).data);
+	printf("%d\n", *(int*)get(stack, 2).data);
 
 	pop(&stack);
 	pop(&stack);

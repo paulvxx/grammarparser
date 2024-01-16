@@ -6,7 +6,7 @@
 
 
 // used to print syntax errors to stderr
-int grammarError(char* msg, int *pos);
+int grammarError(char* msg, int *pos, int *errorFlag);
 
 // parses a file and returns a string containing the contents
 char* parseFile(char* filename);
@@ -14,28 +14,28 @@ char* parseFile(char* filename);
 // parses a string containing a grammar and returns true if the grammar 
 // has valid syntax
 //<Grammar> ::= <NonTerminalInit> '\n' <ListOfRules>
-int parseGrammar(char* str, int* pos);
+int parseGrammar(char* str, int* pos, int* errorFlag);
 
 //<NonTerminalInit> ::= '[' <ListOfNonTerminals> ']'
-int parseNonTerminalInit(char* str, int* pos);
+int parseNonTerminalInit(char* str, int* pos, int* errorFlag);
 
 //<ListOfNonTerminals> ::= <NonTerminal> ',' <ListOfNonTerminals> | <NonTerminal>
-int parseListOfNonTerminals(char* str, int* pos);
+int parseListOfNonTerminals(char* str, int* pos, int* errorFlag);
 
 //<NonTerminal> ::= {'A' - 'Z'} {'A' - 'Z' | 'a' - 'z'}*
 int parseNonTerminal(char* str, int* pos);
 
 //<ListOfRules> ::= <Rule> <ListOfRules> | <Rule>
-int parseListOfRules(char* str, int* pos);
+int parseListOfRules(char* str, int* pos, int* errorFlag);
 
 //<Rule> ::= <NonTerminal> '::=' <ListOfProductions> ';' '\n'
-int parseRule(char* str, int* pos);
+int parseRule(char* str, int* pos, int* errorFlag);
 
 //<ListOfProductions> ::= <ProductionSequence> '|' <ListOfProductions> | <ProductionSequence>
-int parseListOfProductions(char* str, int* pos);
+int parseListOfProductions(char* str, int* pos, int* errorFlag);
 
 //<ProductionSequence> ::= <Production> | <CharSetList>
-int parseProductionSequence(char* str, int* pos);
+int parseProductionSequence(char* str, int* pos, int* errorFlag);
 
 //<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> <Terminal> | <NonTerminal>
 int parseProduction(char* str, int* pos);
@@ -56,16 +56,16 @@ int parseStringTokenList(char* str, int* pos);
 int parseStringToken(char* str, int* pos);
 
 //<CharSetList> ::= <CharSet> <CharSetList> | <CharSet>
-int parseCharSetList(char* str, int* pos);
+int parseCharSetList(char* str, int* pos, int* errorFlag);
 
 //<CharSet> ::= '{' <CharList> '}' | '{' <CharList> '}*'
-int parseCharSet(char* str, int* pos);
+int parseCharSet(char* str, int* pos, int* errorFlag);
 
 //<CharList> ::= '\'' # <StringToken> # '\'' ',' <CharList> | '(' <CharRange> ')' <CharList> | <StringToken> | '(' <CharRange> ')'
-int parseCharList(char* str, int* pos);
+int parseCharList(char* str, int* pos, int* errorFlag);
 
 //<CharRange> ::= '\'' # <StringToken> # '\'' '...' '\'' # <StringToken> # '\''
-int parseCharRange(char* str, int* pos);
+int parseCharRange(char* str, int* pos, int* errorFlag);
 
 // parses a comment
 void parseComment(char* str, int* pos);
