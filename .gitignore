@@ -1,7 +1,8 @@
 *.vsidx
 /.vs
+.sln
 /x64
-RecursiveDecentParser.sln
-RecursiveDecentParser.vcxproj
-RecursiveDecentParser.vcxproj.filters
-RecursiveDecentParser.vcxproj.user
+RecursiveProject.sln
+RecursiveProject.vcxproj
+RecursiveProject.vcxproj.filters
+RecursiveProject.vcxproj.user
