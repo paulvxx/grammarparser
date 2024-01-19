@@ -22,6 +22,7 @@ Data get(Node* stack, int index) {
 		i++;
 	}
 	if (n == NULL) return (Data) {NULL, NULL};
+	//printf("made it\n");
 	return n->data;
 }
 
@@ -40,7 +41,10 @@ Data pop(Node** stack) {
 // could serve as a queue in some cases
 // adds an element to the back of the stack
 void push_back(Node** stack, Data data) {
+	//if (*stack == NULL) printf("Yay\n");
+
 	if (isEmpty(*stack)) {
+		//printf("Yay\n");
 		push(stack, data);
 		return;
 	}
@@ -48,6 +52,7 @@ void push_back(Node** stack, Data data) {
 	new_node->data = data;
 	new_node->next = NULL;
 	Node *n = *stack;
+	//printf("done %d\n", (n->next)==NULL);
 	while (n->next != NULL) {
 		n = n->next;
 	}

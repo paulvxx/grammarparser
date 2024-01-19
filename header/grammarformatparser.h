@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "stack.h"
 
 // used to print syntax errors to stderr
 int grammarError(char* msg, int *pos, int *errorFlag);
@@ -14,31 +14,31 @@ char* parseFile(char* filename);
 // parses a string containing a grammar and returns true if the grammar 
 // has valid syntax
 //<Grammar> ::= <NonTerminalInit> '\n' <ListOfRules>
-int parseGrammar(char* str, int* pos, int* errorFlag);
+int parseGrammar(char* str, int* pos, int* errorFlag, Node** grammar);
 
 //<NonTerminalInit> ::= '[' <ListOfNonTerminals> ']'
-int parseNonTerminalInit(char* str, int* pos, int* errorFlag);
+int parseNonTerminalInit(char* str, int* pos, int* errorFlag, Node** grammar);
 
 //<ListOfNonTerminals> ::= <NonTerminal> ',' <ListOfNonTerminals> | <NonTerminal>
-int parseListOfNonTerminals(char* str, int* pos, int* errorFlag);
+int parseListOfNonTerminals(char* str, int* pos, int* errorFlag, Node** grammar);
 
 //<NonTerminal> ::= {'A' - 'Z'} {'A' - 'Z' | 'a' - 'z'}*
 int parseNonTerminal(char* str, int* pos);
 
 //<ListOfRules> ::= <Rule> <ListOfRules> | <Rule>
-int parseListOfRules(char* str, int* pos, int* errorFlag);
+int parseListOfRules(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<Rule> ::= <NonTerminal> '::=' <ListOfProductions> ';' '\n'
-int parseRule(char* str, int* pos, int* errorFlag);
+int parseRule(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<ListOfProductions> ::= <ProductionSequence> '|' <ListOfProductions> | <ProductionSequence>
-int parseListOfProductions(char* str, int* pos, int* errorFlag);
+int parseListOfProductions(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<ProductionSequence> ::= <Production> | <CharSetList>
-int parseProductionSequence(char* str, int* pos, int* errorFlag);
+int parseProductionSequence(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> <Terminal> | <NonTerminal>
-int parseProduction(char* str, int* pos);
+int parseProduction(char* str, int* pos, Node* grammar);
 
 //<Terminal> ::= <String>
 int parseTerminal(char* str, int* pos);
@@ -56,13 +56,13 @@ int parseStringTokenList(char* str, int* pos);
 int parseStringToken(char* str, int* pos);
 
 //<CharSetList> ::= <CharSet> <CharSetList> | <CharSet>
-int parseCharSetList(char* str, int* pos, int* errorFlag);
+int parseCharSetList(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<CharSet> ::= '{' <CharList> '}' | '{' <CharList> '}*'
-int parseCharSet(char* str, int* pos, int* errorFlag);
+int parseCharSet(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<CharList> ::= '\'' # <StringToken> # '\'' ',' <CharList> | '(' <CharRange> ')' <CharList> | <StringToken> | '(' <CharRange> ')'
-int parseCharList(char* str, int* pos, int* errorFlag);
+int parseCharList(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<CharRange> ::= '\'' # <StringToken> # '\'' '...' '\'' # <StringToken> # '\''
 int parseCharRange(char* str, int* pos, int* errorFlag);
@@ -85,3 +85,6 @@ int eatString(char* str, int* pos, char* s);
 
 // looks ahead for a character
 int peek(char* str, int* pos, char c);
+
+// used to obtain a substring from a string
+char* substr(char* str, int lower, int upper);
