@@ -1,0 +1,5 @@
+[A, B, C, D, E, M]  
+
+A ::= "ccca" | "a" B | "aaabc";
+B ::= "a" | "b" | "c\n" A | "ac" C | ('a'-'c');
+!! C ::= "a" A "a" | "ab" | "ac" | "bc" ;
