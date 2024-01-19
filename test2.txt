@@ -1,5 +1,5 @@
-[A, B, C, D]  
+[A, BD, C, D, E, M, C]  
 
 A ::= "ccca" | "a" B | "aaabc";
-B ::= "a" | "b" | "c" A | "ac" C
-C ::= "a" A "a" | "ab" | "ac" | "bc" 
+B ::= "a" | "b" | "c" A | "ac" C;
+C ::= "a" A "a" | "ab" | "ac" | "bc" ;

@@ -4,7 +4,8 @@
 !! Another comment
 
 A ::= "ab" | "c" B | "aadac";
-B ::= "a" | "b" | "c" A | {'a', 'b'}* {('a' ... 'z'), ('A' ... 'Z')};
+B ::= "a" | "b" | "c" A | 
+{'a', 'b'}* {('a' ... 'z'), ('A' ... 'Z')}; !! test
  
    
 !! Another comment here     
