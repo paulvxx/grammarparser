@@ -24,10 +24,12 @@ void deleteGrammar(Node **grammar) {
 
 void printRule(Node* rule) {
 	Node *iterator = rule;
+	printf("------------------\n");
 	while (iterator != NULL) {
-		printf("Type=%s  Data: %s\n", (char*)iterator->data.type, (char*)iterator->data.data);
+		printf("Type = % s  Data : % s\n", (char*)iterator->data.type, (char*)iterator->data.data);
 		iterator = iterator->next;
 	}
+	printf("------------------\n");
 }
 
 void printGrammar(Node* grammar) {
@@ -37,6 +39,7 @@ void printGrammar(Node* grammar) {
 		printRule((Node*) iterator->data.data);
 		iterator = iterator->next;
 	}
+	printf("\nDONE------------------DONE\n");
 }
 
 int main(int argc, char* argv[]) {

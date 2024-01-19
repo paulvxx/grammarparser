@@ -172,9 +172,9 @@ int parseListOfNonTerminals(char* str, int* pos, int* errorFlag, Node* grammar) 
 
     // dereferncing nonTerminalsInit List
     Node* ntList = (Node*)get(grammar, 0).data;
-    printf("s %d\n", size(ntList));
+    //printf("s %d\n", size(ntList));
     push_back(&ntList, (Data) { "NonTerminal", nt });
-    printf("String added: %s\n", nt);
+    //printf("String added: %s\n", nt);
     (grammar)->data = (Data) {NULL, ntList};
 
     parseWhiteSpace(str, pos, TRUE);
