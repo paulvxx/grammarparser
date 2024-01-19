@@ -33,6 +33,8 @@ void push_back(Node** stack, Data data);
 // removes an element from the back of the stack
 Data pop_back(Node** stack);
 
+void deleteAll(Node** stack);
+
 // get the size of the stack
 int size(Node* stack);
 

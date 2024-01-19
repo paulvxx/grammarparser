@@ -22,7 +22,7 @@
 //<ListOfRules> ::= <Rule> <ListOfRules> | <Rule>
 //<Rule> ::= <NonTerminal> '::=' <ListOfProductions> ';' '\n'
 //<ListOfProductions> ::= <ProductionSequence> '|' <ListOfProductions> | <ProductionSequence>
-//<ProductionSequence> ::= <Production> | <CharSetList>
+//<ProductionSequence> ::= <Production> | <CharRange>
 //<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> | <Terminal> | <NonTerminal>
 //<Terminal> ::= <String>
 //<String> ::= '\"' # <StringTokenList> # '\"'
@@ -31,11 +31,15 @@
 // '(' | ')' | '_' | '-' | '+' | '=' | '{' | '}' | '[' | ']' | '|' | ':' | 
 // ';' | '<' | '>' | ',' | '.' | '?' | '/' | '`' | '~' |  
 // '\a' | '\b' | '\f' | '\n' | '\r' | '\t' | '\v' | '\?' | '\\' | '\'' | '\"' }*
+// <CharRange> ::= '('#'\''#<StringToken>#'\''#'-'#'\''#<StringToken>#'\''#')'
+// 
+// 
+// IGNORE
 //<CharSetList> ::= <CharSet> <CharSetList> | <CharSet>
 //<CharSet> ::= '{' <CharList> '}' | '{' <CharList> '}*'
 //<CharList> ::= '\'' # <StringToken> # '\'' ',' <CharList> | '(' <CharRange> ')' <CharList> | <StringToken> | '(' <CharRange> ')'
 //<CharRange> ::= '\'' # <StringToken> # '\'' '...' '\'' # <StringToken> # '\''
-// 
+// ------
 //
 // An Example Grammar:
 // [A, B, C]
@@ -120,74 +124,58 @@ parseGrammar(char* str, int *pos, int* errorFlag, Node** grammar) {
 	// second element would contain data type "Terminal" and data value "c"
     // third element would contain data type "Non Terminal" and data value "B"
 
+    // Initialize a tempory list of Non Terminals
 
-
-    // IGNORE THESE COMMENTS
-    // initialize a temporary stack to store all Non Terminals
-    
+    *grammar = NULL;
     Node* nonTerminalsInit = NULL;
     Data ntTemp = {NULL, nonTerminalsInit};
     push_back(grammar, ntTemp);   
 
-    //Node* cnt = (get(*grammar, 0).data);
-    //printf("%d\n", size(*grammar));
-    //Node* cnt2 = (get(grammar, 1).data);
-    //printf("IS : %d\n", ((cnt2 == NULL)));
-    //printf("sSSS %d\n", cnt == nonTerminalsInit);
-    //printf("sSSS %d\n", (*cnt == *nonTerminalsInit));
-
-    //if (cnt != NULL && cnt->data.data != NULL) {
-    //    printf("String: %s\n", (char*)(cnt->data.data));  // Assuming cnt->data is a Node* whose data is a string
-    //}
-    //else {
-    //    printf("Error: Null pointer encountered\n");
-    //}
-
-    if (!parseNonTerminalInit(str, pos, errorFlag, grammar)) return FALSE;
+    if (!parseNonTerminalInit(str, pos, errorFlag, *grammar)) return FALSE;
     parseWhiteSpace(str, pos, FALSE);
     if ((*pos) + 1 < strlen(str) && str[*pos] == '!' && str[(*pos) + 1] == '!') {
         parseComment(str, pos);
     }
     else if (!eat(str, pos, '\n')) return FALSE;
-    if (!parseListOfRules(str, pos, errorFlag, grammar)) return FALSE;
+    if (!parseListOfRules(str, pos, errorFlag, *grammar)) return FALSE;
 
-
-
-    // IGNORE THESE COMMENTS
-    // free the temporary stack
-    
-    printf("Strings:   ");
+    // free the temporary List of Non Terminals
+    //printf("Strings:   ");
     nonTerminalsInit = ((Node*)(*grammar)->data.data);
     //printf("E %d\n", size(nonTerminalsInit));
     while (!isEmpty(nonTerminalsInit)) {
-        printf("%s  ", (char*)nonTerminalsInit->data.data);
+    //    printf("[Type=%s, %s]  ", (char*)nonTerminalsInit->data.type, (char*)nonTerminalsInit->data.data);
         free(nonTerminalsInit->data.data);
-		pop(&nonTerminalsInit);
+        nonTerminalsInit = nonTerminalsInit->next;
+		//pop(&nonTerminalsInit);
 	}
-    printf("\n");
+    //printf("\n");
+    nonTerminalsInit = ((Node*)(*grammar)->data.data);
+    deleteAll(&nonTerminalsInit);
+    //deleteAll(grammar);
     pop(grammar);
     return TRUE;
 }
 
-int parseNonTerminalInit(char* str, int* pos, int* errorFlag, Node** grammar) {
+int parseNonTerminalInit(char* str, int* pos, int* errorFlag, Node* grammar) {
 	if (!eat(str, pos, '[')) return grammarError("Missing \'[\'", pos, errorFlag);
 	if (!parseListOfNonTerminals(str, pos, errorFlag, grammar)) return FALSE;
 	if (!eat(str, pos, ']')) return grammarError("Missing \']\'", pos, errorFlag);
 	return TRUE;
 }
 
-int parseListOfNonTerminals(char* str, int* pos, int* errorFlag, Node** grammar) {
+int parseListOfNonTerminals(char* str, int* pos, int* errorFlag, Node* grammar) {
     parseWhiteSpace(str, pos, TRUE);
     int oldPos = *pos;
     if (!parseNonTerminal(str, pos)) return FALSE;
     char* nt = substr(str, oldPos, *pos);
 
     // dereferncing nonTerminalsInit List
-    Node* ntList = (Node*) get(*grammar, 0).data;
+    Node* ntList = (Node*)get(grammar, 0).data;
     printf("s %d\n", size(ntList));
-    push_back(&ntList, (Data) {NULL, nt});
+    push_back(&ntList, (Data) { "NonTerminal", nt });
     printf("String added: %s\n", nt);
-    (*grammar)->data = (Data) {NULL, ntList};
+    (grammar)->data = (Data) {NULL, ntList};
 
     parseWhiteSpace(str, pos, TRUE);
     if (eat(str, pos, ',')) {
@@ -207,12 +195,32 @@ int parseListOfRules(char* str, int* pos, int* errorFlag, Node* grammar) {
 }
 
 int parseRule(char* str, int* pos, int* errorFlag, Node* grammar) {
+    int oldPos = *pos;
 	if (!parseNonTerminal(str, pos)) return grammarError("Missing Starting Symbol for Rule", pos, errorFlag);
+
+    char* nt = substr(str, oldPos, *pos);
+    Node* ntList = (Node*) get(grammar, 0).data;
+    int contains = FALSE;
+    while (ntList!=NULL && !contains) {
+		if (strcmp(nt, (char*) ntList->data.data) == 0) {
+			contains = TRUE;
+	    }
+		ntList = ntList->next;
+    }
+
+
+    if (!contains) return grammarError("Rule does not start with an initialized Non Terminal", pos, errorFlag);
+
+
     parseWhiteSpace(str, pos, FALSE);
 	if (!eat(str, pos, ':')) return grammarError("Missing \':\'", pos, errorFlag);
 	if (!eat(str, pos, ':')) return grammarError("Missing \':\'", pos, errorFlag);
 	if (!eat(str, pos, '=')) return grammarError("Missing \'=\'", pos, errorFlag);
-	if (!parseListOfProductions(str, pos, errorFlag, grammar)) return FALSE;
+    if (!parseListOfProductions(str, pos, errorFlag, nt, grammar)) {
+        free(nt);
+        return FALSE;
+    }
+    free(nt);
 	if (!eat(str, pos, ';')) return grammarError("Missing \';\'", pos, errorFlag);
     parseWhiteSpace(str, pos, FALSE);
     if ((*pos) + 1 < strlen(str) && str[*pos] == '!' && str[(*pos) + 1] == '!') {
@@ -222,33 +230,87 @@ int parseRule(char* str, int* pos, int* errorFlag, Node* grammar) {
 	return TRUE;
 }
 
-int parseListOfProductions(char* str, int* pos, int* errorFlag, Node* grammar) {
+int parseListOfProductions(char* str, int* pos, int* errorFlag, char *leadingNt, Node* grammar) {
     parseWhiteSpaceAndComments(str, pos);
-    if (!parseProductionSequence(str, pos, errorFlag, grammar)) return FALSE;
+    //////////
+    Node* newRule = NULL;
+    char* copyNt = malloc(sizeof(char) * (strlen(leadingNt)+1));
+    strcpy(copyNt, leadingNt);
+    push_back(&newRule, (Data) { "NonTerminal", copyNt });
+    push_back(&grammar, (Data) { "Rule", newRule });
+    //////////
+    if (!parseProductionSequence(str, pos, errorFlag, leadingNt, grammar)) return FALSE;
     parseWhiteSpace(str, pos, TRUE);
     // logical OR (choice)
 	if (!eat(str, pos, '|')) return TRUE;
-	if (!parseListOfProductions(str, pos, errorFlag, grammar)) return grammarError("Production Rule after \'|\' cannot be blank", pos, errorFlag);
+	if (!parseListOfProductions(str, pos, errorFlag, leadingNt, grammar)) return grammarError("Production Rule after \'|\' cannot be blank", pos, errorFlag);
 	return TRUE;
 }
 
-int parseProductionSequence(char* str, int* pos, int *errorFlag, Node* grammar) {
+int parseProductionSequence(char* str, int* pos, int *errorFlag, char *leadingNt, Node* grammar) {
 	parseWhiteSpace(str, pos, TRUE);
-    if (parseCharSetList(str, pos, errorFlag, grammar));
-	else if (!parseProduction(str, pos, grammar)) return FALSE;
+    //if (parseCharSetList(str, pos, errorFlag, grammar));
+    if (peek(str, pos, '(')) {
+        eat(str, pos, '(');
+        parseWhiteSpace(str, pos, FALSE);
+        char min;
+        char max;
+        if (!parseCharRange(str, pos, &min, &max, errorFlag)) return FALSE;
+        parseWhiteSpace(str, pos, FALSE);
+        if(!eat(str, pos, ')')) return grammarError("Missing \')\'", pos, errorFlag);
+        //////////
+        char *rangeStr = malloc(sizeof(char) * 3);
+        rangeStr[0] = min;
+        rangeStr[1] = max;
+        rangeStr[2] = '\0';
+        Node* currentRule = (Node*)get(grammar, size(grammar)-1).data;
+        push_back(&currentRule, (Data) {"Range", rangeStr });
+        Node* it = grammar;
+        while (it->next != NULL) {
+            it = it->next;
+        }
+		it->data = (Data) {"Rule", currentRule};
+        //////////
+    }
+    else if (!parseProduction(str, pos, leadingNt, grammar)) return FALSE; 
 	parseWhiteSpace(str, pos, TRUE);
 	// logical AND (sequence)
-	if (!parseProductionSequence(str, pos, errorFlag, grammar)) return TRUE;
+	if (!parseProductionSequence(str, pos, errorFlag, leadingNt, grammar)) return TRUE;
 	return TRUE;
 }
 
-int parseProduction (char* str, int* pos, Node* grammar) {
+int parseProduction (char* str, int* pos, char *leadingNt, Node* grammar) {
     // check which type of symbol/production it is
     if (peek(str, pos, '\"')) {
+        // account for quotes
+        int begin = (*pos)+1;
 		if (!parseTerminal(str, pos)) return FALSE;
+        int end = (*pos)-1;
+        char* terminal = substr(str, begin, end);
+        processEscapeCharacters(&terminal);
+        //////////
+        Node* currentRule = (Node*)get(grammar, size(grammar) - 1).data;
+        push_back(&currentRule, (Data) { "Terminal", terminal });
+        Node* it = grammar;
+        while (it->next != NULL) {
+            it = it->next;
+        }
+        it->data = (Data) { "Rule", currentRule };
+        //////////
 	}
     else {
+        int oldPos = *pos;
         if (!parseNonTerminal(str, pos)) return FALSE;
+        char* nonTerminal = substr(str, oldPos, *pos);
+        //////////
+        Node* currentRule = (Node*)get(grammar, size(grammar) - 1).data;
+        push_back(&currentRule, (Data) { "NonTerminal", nonTerminal });
+        Node* it = grammar;
+        while (it->next != NULL) {
+            it = it->next;
+        }
+        it->data = (Data){ "Rule", currentRule };
+        //////////
 	}
     return TRUE;
 }
@@ -281,9 +343,7 @@ int parseString(char* str, int* pos) {
 
 
 int parseStringTokenList(char* str, int* pos) {
-	//int startPos = *pos;
 	while (parseStringToken(str, pos));
-	//*pos = startPos;
 	return TRUE;
 }
 
@@ -331,7 +391,9 @@ int parseCharList(char* str, int* pos, int* errorFlag, Node* grammar) {
     if (peek(str, pos, '(')) {
 		if (!eat(str, pos, '(')) return grammarError("Missing \'(\', Expected Character Range", pos, errorFlag);
         parseWhiteSpace(str, pos, FALSE);
-		if (!parseCharRange(str, pos, errorFlag)) return FALSE;
+        char min;
+        char max;
+		if (!parseCharRange(str, pos, &min, &max, errorFlag)) return FALSE;
         parseWhiteSpace(str, pos, FALSE);
 		if (!eat(str, pos, ')')) return grammarError("Missing \')\', Expected Character Range", pos, errorFlag);
 	}
@@ -347,18 +409,56 @@ int parseCharList(char* str, int* pos, int* errorFlag, Node* grammar) {
     return TRUE;
 }
 
-int parseCharRange(char *str, int* pos, int* errorFlag) {
+int parseCharRange(char *str, int* pos, char *min, char *max, int* errorFlag) {
 	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
+    int oldPos = *pos;
 	if (!parseStringToken(str, pos)) return FALSE;
+    if (*pos - oldPos == 1) {
+        *min = str[(*pos)-1];
+    }
+    // escape character
+	else {
+        char *esc = malloc(sizeof(char) * 3);
+        esc[0] = str[(*pos)-2];
+        esc[1] = str[(*pos)-1];
+        esc[2] = '\0';
+        processEscapeCharacters(&esc);
+        *min = esc[0];
+        free(esc);
+	}
+
 	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
-    parseWhiteSpace(str, pos, FALSE);
-	if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos, errorFlag);
-	if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos, errorFlag);
-    if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos, errorFlag);
-    parseWhiteSpace(str, pos, FALSE);
+    //parseWhiteSpace(str, pos, FALSE);
+    if (!eat(str, pos, '-')) return grammarError("Missing \'-\', Expected Character Range", pos, errorFlag);
+    //if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos, errorFlag);
+	//if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos, errorFlag);
+    //if (!eat(str, pos, '.')) return grammarError("Missing \'.\', Expected Character Range", pos, errorFlag);
+    //parseWhiteSpace(str, pos, FALSE);
 	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
-	if (!parseStringToken(str, pos)) return FALSE;
+    oldPos = *pos;
+    if (!parseStringToken(str, pos)) return FALSE;
+    if (*pos - oldPos == 1) {
+        *max = str[(*pos) - 1];
+    }
+    // escape character
+    else {
+        char* esc = malloc(sizeof(char) * 3);
+        esc[0] = str[(*pos) - 2];
+        esc[1] = str[(*pos) - 1];
+        esc[2] = '\0';
+        processEscapeCharacters(&esc);
+        *max = esc[0];
+        free(esc);
+    }
+
 	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
+	//parseWhiteSpace(str, pos, FALSE);
+    // switch values of min and max if min > max
+    if (*min > *max) {
+		char temp = *min;
+		*min = *max;
+		*max = temp;
+	}
 	return TRUE;
 }
 
@@ -436,4 +536,72 @@ char* substr(char* str, int lower, int upper) {
     }
     result[i] = '\0';
     return result;
+}
+
+void processEscapeCharacters(char** strToProcess) {
+	int i = 0;
+	int j = 0;
+    char* str = *strToProcess;
+	char* result = malloc(sizeof(char) * (strlen(str) + 1));
+	if (result == NULL) {
+		perror("malloc failed");
+		exit(EXIT_FAILURE);
+	}
+	while (i < strlen(str)) {
+		if (str[i] == '\\') {
+			i++;
+			if (str[i] == 'a') {
+				result[j] = '\a';
+			}
+			else if (str[i] == 'b') {
+				result[j] = '\b';
+			}
+			else if (str[i] == 'f') {
+				result[j] = '\f';
+			}
+			else if (str[i] == 'n') {
+				result[j] = '\n';
+			}
+			else if (str[i] == 'r') {
+				result[j] = '\r';
+			}
+			else if (str[i] == 't') {
+				result[j] = '\t';
+			}
+			else if (str[i] == 'v') {
+				result[j] = '\v';
+			}
+			else if (str[i] == '?') {
+				result[j] = '\?';
+			}
+			else if (str[i] == '\\') {
+				result[j] = '\\';
+			}
+			else if (str[i] == '\'') {
+				result[j] = '\'';
+			}
+			else if (str[i] == '\"') {
+				result[j] = '\"';
+			}
+			else {
+				result[j] = str[i];
+			}
+		}
+		else {
+			result[j] = str[i];
+		}
+		i++;
+		j++;
+	}
+	result[j] = '\0';
+    // save memory by reallocating
+    char* temp = realloc(str, sizeof(char) * (strlen(result) + 1));
+	if (temp == NULL) {
+		perror("realloc failed");
+		exit(EXIT_FAILURE);
+	}
+	str = temp;
+	strcpy(str, result);
+    *strToProcess = str;
+	free(result);
 }

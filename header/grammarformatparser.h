@@ -17,10 +17,10 @@ char* parseFile(char* filename);
 int parseGrammar(char* str, int* pos, int* errorFlag, Node** grammar);
 
 //<NonTerminalInit> ::= '[' <ListOfNonTerminals> ']'
-int parseNonTerminalInit(char* str, int* pos, int* errorFlag, Node** grammar);
+int parseNonTerminalInit(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<ListOfNonTerminals> ::= <NonTerminal> ',' <ListOfNonTerminals> | <NonTerminal>
-int parseListOfNonTerminals(char* str, int* pos, int* errorFlag, Node** grammar);
+int parseListOfNonTerminals(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<NonTerminal> ::= {'A' - 'Z'} {'A' - 'Z' | 'a' - 'z'}*
 int parseNonTerminal(char* str, int* pos);
@@ -32,13 +32,13 @@ int parseListOfRules(char* str, int* pos, int* errorFlag, Node* grammar);
 int parseRule(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<ListOfProductions> ::= <ProductionSequence> '|' <ListOfProductions> | <ProductionSequence>
-int parseListOfProductions(char* str, int* pos, int* errorFlag, Node* grammar);
+int parseListOfProductions(char* str, int* pos, int* errorFlag, char *leadingNt, Node* grammar);
 
 //<ProductionSequence> ::= <Production> | <CharSetList>
-int parseProductionSequence(char* str, int* pos, int* errorFlag, Node* grammar);
+int parseProductionSequence(char* str, int* pos, int* errorFlag, char* leadingNt, Node* grammar);
 
 //<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> <Terminal> | <NonTerminal>
-int parseProduction(char* str, int* pos, Node* grammar);
+int parseProduction(char* str, int* pos, char* leadingNt, Node* grammar);
 
 //<Terminal> ::= <String>
 int parseTerminal(char* str, int* pos);
@@ -65,7 +65,7 @@ int parseCharSet(char* str, int* pos, int* errorFlag, Node* grammar);
 int parseCharList(char* str, int* pos, int* errorFlag, Node* grammar);
 
 //<CharRange> ::= '\'' # <StringToken> # '\'' '...' '\'' # <StringToken> # '\''
-int parseCharRange(char* str, int* pos, int* errorFlag);
+int parseCharRange(char* str, int* pos, char* min, char* max, int* errorFlag);
 
 // parses a comment
 void parseComment(char* str, int* pos);
@@ -88,3 +88,7 @@ int peek(char* str, int* pos, char c);
 
 // used to obtain a substring from a string
 char* substr(char* str, int lower, int upper);
+
+// used to process escape characters
+// returns a new string with escape characters processed
+void processEscapeCharacters(char** strToProcess);

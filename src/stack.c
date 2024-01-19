@@ -80,6 +80,12 @@ Data pop_back(Node** stack) {
 	return data;
 }
 
+// deletes all elements from the list
+void deleteAll(Node** stack) {
+	while (!isEmpty(*stack)) {
+		pop(stack);
+	}
+}
 
 // get the size of the stack
 int size(Node* stack) {
