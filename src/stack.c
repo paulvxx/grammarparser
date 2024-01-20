@@ -29,7 +29,7 @@ Data get(Node* stack, int index) {
 
 // remove an element from the stack
 Data pop(Node** stack) {
-	if (isEmpty(*stack)) return (Data) {NULL, NULL};
+	if (isEmpty(*stack)) return (Data) { NULL, NULL };
 	Node* temp = *stack;
 	Data data = temp->data;
 	*stack = temp->next;

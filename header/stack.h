@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef STACK_HEADER_H
+#define STACK_HEADER_H
+
 // structure for Data element
 typedef struct Data {
 	char* type;
@@ -40,3 +43,5 @@ int size(Node* stack);
 
 // check if the stack is empty
 int isEmpty(Node * stack);
+
+#endif STACK_HEADER_H

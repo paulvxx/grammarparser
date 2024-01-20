@@ -5,6 +5,9 @@
 #include <string.h>
 #include "stack.h"
 
+#ifndef GRAMMAR_FORMAT_PARSER_H
+#define GRAMMAR_FORMAT_PARSER_H
+
 // used to print syntax errors to stderr
 int grammarError(char* msg, int *pos, int *errorFlag);
 
@@ -86,9 +89,4 @@ int eatString(char* str, int* pos, char* s);
 // looks ahead for a character
 int peek(char* str, int* pos, char c);
 
-// used to obtain a substring from a string
-char* substr(char* str, int lower, int upper);
-
-// used to process escape characters
-// returns a new string with escape characters processed
-void processEscapeCharacters(char** strToProcess);
+#endif GRAMMAR_FORMAT_PARSER_H
