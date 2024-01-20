@@ -44,97 +44,86 @@ void printGrammar(Node* grammar) {
 }
 
 
-
+void printHelpMessage() {
+	printf("A program to check if a string is in the language of an arbitrary grammar\n");
+	printf("Usage: ./grammarparser <grammar file> <string to parse> <string to parse> ...\n");
+	printf("To print this message again, run the program with no arguments\n");
+	printf("Syntax for grammar file:\n");
+	printf("--------------------------------------------------------------------------------\n");
+	printf("<Grammar> ::= <NonTerminalInit> '\\n' <ListOfRules>\n");
+	printf("<NonTerminalInit> ::= '[' <ListOfNonTerminals> ']'\n");
+	printf("<ListOfNonTerminals> ::= <NonTerminal> ',' <ListOfNonTerminals> | <NonTerminal>\n");
+	printf("<NonTerminal> ::= {'A' - 'Z'} {'A' - 'Z' | 'a' - 'z'}*\n");
+	printf("<ListOfRules> ::= <Rule> <ListOfRules> | <Rule>\n");
+	printf("<Rule> ::= <NonTerminal> '::=' <ListOfProductions> ';' '\\n'\n");
+	printf("<ListOfProductions> ::= <ProductionSequence> '|' <ListOfProductions> | <ProductionSequence>\n");
+	printf("<ProductionSequence> ::= <Production> <ProductionSequence> | <CharRange> <ProductionSequence> | <Production> | <CharRange>\n");
+	printf("<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> | <Terminal> | <NonTerminal>\n");
+	printf("<Terminal> ::= <String>\n");
+	printf("<String> ::= '\"' # <StringTokenList> # '\"'\n");
+	printf("<StringTokenList> ::= # <StringToken> # <StringTokenList> # | ''\n");
+	printf("<StringToken> ::= {'A' - 'Z' | 'a' - 'z' | '0' - '9' | ' ' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' |\n");
+	printf(" '(' | ')' | '_' | '-' | '+' | '=' | '{' | '}' | '[' | ']' | '|' | ':' |\n");
+	printf(" ';' | '<' | '>' | ',' | '.' | '?' | '/' | '`' | '~' |\n");
+	printf(" '\\a' | '\\b' | '\\f' | '\\n' | '\\r' | '\\t' | '\\v' | '\\?' | '\\\\' | '\\'' | '\\\"' }*\n");
+	printf("--------------------------------------------------------------------------------\n");
+	printf("Note: Comments and spaces are generally ignored\n");
+	printf("Comments may occur after an '|' symbol, after the list of non-terminals, or after a rule i.e. the ';' end symbol\n");
+	printf("Comments are denoted by a '!!' and end with a newline character\n");
+	printf("Spaces are ignored except in the case of a string, where they are treated as a character\n\n");
+	printf("The prgram will print whether or not each string is in the language of the grammar\n");
+	printf("The algorithm used is a recursive descent parser along with a backtracking algorithm,\n");
+	printf("allowing for the ability to parse a variety of languages\n");
+	printf("The grammar file must be in the format specified above\n");
+	printf("There are limitations, however\n");
+	printf("Due to the nature of the algorithm, the grammar cannot contain a left recursion cycle\n");
+	printf("This is not yet checked, so it is up to the user to ensure that the grammar does not contain a left recursion cycle\n");
+}
 
 int main(int argc, char* argv[]) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	char* toParse = parseFile("test2.txt");
+
+	// print a help message if no command line arguments are given
+	if (argc == 1) {
+		printHelpMessage();
+		return 0;
+	}
+
+	// first command line argument is the grammar file
+	char* toParse = parseFile(argv[1]);
 	int error = TRUE;
 	int pos = 0;
 	Node* grammar = NULL;
 
+	// parse the grammar file to obtain a grammar
 	if (parseGrammar(toParse, &pos, &error, &grammar)) {
 		printf("Grammar is valid\n");
 	}
 	else {
 		printf("Grammar is invalid\n");
+		free(toParse);
+		deleteGrammar(&grammar);
+		return 0;
+	}
+	printGrammar(grammar);
+
+	// rest of the command line arguments are test strings to parse
+	int i = 2;
+	while (i < argc) {
+		char* input = malloc(sizeof(char) * (strlen(argv[i]) + 1));
+		strcpy(input, argv[i]);
+		int inLang = parseStringGrammar(grammar, input);
+		if (inLang) {
+			printf("Input %s: String is in the language\n", input);
+		}
+		else {
+			printf("Input %s: String is not in the language\n", input);
+		}
+		free(input);
+		i++;
 	}
 
-	//printGrammar(grammar);
-	// test the copy function:
-	Node* copy = copyGrammar(grammar);
-
-	// Free All memory
-	deleteGrammar(&grammar);
-	printGrammar(copy);
-	//deleteGrammar(&copy);
-
-	Node* stack = NULL;
-	push(&stack, (Data) { "Range", "tz" });
-	push_back(&stack, (Data) {"Terminal", "acd"});
-	push_back(&stack, (Data) { "NonTerminal", "B" });
-	push_back(&stack, (Data) {"NonTerminal", "C" });
-	push_back(&stack, (Data) {"Terminal", "ee"});
-
-
-	//addSequence(&stack, (Node*) copy->data.data);
-	//addSequence(&stack, (Node*) copy->data.data);
-	//addSequence(&stack, (Node*) (copy->next)->data.data);
-	//addSequence(&stack, (Node*) (copy->next)->data.data);
-	//addSequence(&stack, (Node*) (copy->next->next)->data.data);
-	//printRule(stack);
-	//printRule(stack);
-
-	push_back(&stack, (Data) { "Terminal", "fgh" });
-
-	char* c = malloc(sizeof(char) * (strlen("xddaBdacC")+1));
-	strcpy(c, "xddaBdacC");
-	//printf("Before: %s\n", c);
-	popIfMatch(&stack, &c);
-	//printf("After: %s\n", c);
-	free(c);
-
-	Node* dcopy = copyRule(stack);
-
-	deleteAll(&stack);
-	//printCurrentStack(dcopy, "dddddd");
-	//Node* gt = NULL;
-	//push_back(&gt, (Data) {"S", NULL});
-	//Node *itStack = stack;
-	//while (itStack != NULL) {
-	//	free(itStack->data.data);
-	//	itStack = itStack->next;
-	//}
-	//printRule(dcopy);
-
-	//printRule(stack);
-	//Node* gt = NULL;
-	//push_back(&gt, (Data) {"S", NULL});
-	// 
-	Node *itStack = dcopy;
-	while (itStack != NULL) {
-		free(itStack->data.data);
-		itStack = itStack->next;
-	}
-
-	deleteAll(&dcopy);
-
-
-	char* ipStr = "aac";
-	char *input = malloc(sizeof(char) * (strlen(ipStr)+1));
-	strcpy(input, ipStr);
-	int inLang = parseStringGrammar(copy, input);
-	//int inLang = TRUE;
-	if (inLang) {
-		printf("String is in the language\n");
-	}
-	else {
-		printf("String is not in the language\n");
-	}
-	free(input);
-	deleteGrammar(&copy);
-	//free(gt);
-	//free(grammar);
 	free(toParse);
+	deleteGrammar(&grammar);
 	return 0;
 }

@@ -37,10 +37,10 @@ int parseRule(char* str, int* pos, int* errorFlag, Node* grammar);
 //<ListOfProductions> ::= <ProductionSequence> '|' <ListOfProductions> | <ProductionSequence>
 int parseListOfProductions(char* str, int* pos, int* errorFlag, char *leadingNt, Node* grammar);
 
-//<ProductionSequence> ::= <Production> | <CharSetList>
+//<ProductionSequence> ::= <Production> <ProductionSequence> | <CharRange> <ProductionSequence> | <Production> | <CharRange>
 int parseProductionSequence(char* str, int* pos, int* errorFlag, char* leadingNt, Node* grammar);
 
-//<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> <Terminal> | <NonTerminal>
+//<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> | <Terminal> | <NonTerminal>
 int parseProduction(char* str, int* pos, char* leadingNt, Node* grammar);
 
 //<Terminal> ::= <String>
@@ -67,7 +67,7 @@ int parseCharSet(char* str, int* pos, int* errorFlag, Node* grammar);
 //<CharList> ::= '\'' # <StringToken> # '\'' ',' <CharList> | '(' <CharRange> ')' <CharList> | <StringToken> | '(' <CharRange> ')'
 int parseCharList(char* str, int* pos, int* errorFlag, Node* grammar);
 
-//<CharRange> ::= '\'' # <StringToken> # '\'' '...' '\'' # <StringToken> # '\''
+//<CharRange> ::= '('#'\''#<StringToken>#'\''#'-'#'\''#<StringToken>#'\''#')'
 int parseCharRange(char* str, int* pos, char* min, char* max, int* errorFlag);
 
 // parses a comment

@@ -23,7 +23,7 @@
 //<ListOfRules> ::= <Rule> <ListOfRules> | <Rule>
 //<Rule> ::= <NonTerminal> '::=' <ListOfProductions> ';' '\n'
 //<ListOfProductions> ::= <ProductionSequence> '|' <ListOfProductions> | <ProductionSequence>
-//<ProductionSequence> ::= <Production> | <CharRange>
+//<ProductionSequence> ::= <Production> | <CharRange> | <Production> <ProductionSequence> | <CharRange> <ProductionSequence>
 //<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> | <Terminal> | <NonTerminal>
 //<Terminal> ::= <String>
 //<String> ::= '\"' # <StringTokenList> # '\"'

@@ -76,25 +76,14 @@ int popIfMatch(Node** stack, char** sequence) {
 		Data nextSymbol = iterator->data;
 		if (nextSymbol.type== "Terminal") {
 			char* nextTerminal = nextSymbol.data;
+			// check if the next Terminal is a substring of the current sequence
 			int len = strlen(nextTerminal);
 			if (strncmp(nextTerminal, *sequence, len) == 0) {
-				//if (strcmp(nextTerminal, *sequence) == 0) {
-					//char* temp = substr(*sequence, len, strlen(*sequence));
-				//	free(*sequence);
-				//	*sequence = NULL;
-					//*sequence = temp;
-				//	free(pop(stack).data);
-				//}
-				//else {
+				// remove the Terminal from the stack if it matches
 					char* temp = substr(*sequence, len, strlen(*sequence));
 					free(*sequence);
 					*sequence = temp;
 					free(pop(stack).data);
-				//}
-				//printf("size=%d, %s\n", (int) strlen(temp), temp);
-				//free(*sequence);
-				//*sequence = temp;
-				//free(pop(stack).data);
 				return TRUE;
 			}
 		}
@@ -116,11 +105,7 @@ int popIfMatch(Node** stack, char** sequence) {
 }
 
 void deleteStack(Node** stack) {
-	//Node* iterator = *stack;
-	//printf("New LIST DELETING:\n");
-	int t = size(*stack);
 	while (*stack != NULL) {
-		t--;
 		//free(iterator->data.data);
 		free(pop(stack).data);
 		//iterator = iterator->next;
@@ -144,15 +129,16 @@ int parseStringGrammar(Node* grammar, char* string) {
 
 	// parse the input string
 	int stringInLang = parse(grammar, &stack, &copyOfString);
-	//printf("size %d\n", sizeof(string));
 
 	free(copyOfString);
-	// clear contents of stack
-	//while (itStack != NULL) {
-	//	free(itStack->data.data);
-	//	itStack = itStack->next;
-	//}
-	//deleteAll(&stack);
+	//clear contents of stack
+	 
+	Node* itStack = stack;
+	while (itStack != NULL) {
+		free(itStack->data.data);
+		itStack = itStack->next;
+	}
+	deleteAll(&stack);
 	return stringInLang;
 }
 
@@ -186,12 +172,10 @@ int parse(Node* grammar, Node** stack, char** currString) {
 	}
 	// next stack symbol is NonTerminal
 	if ((*stack)->data.type == "NonTerminal") {
-		//printf("IN TERMINAL:   ");  printCurrentStack(stack, *currString);
 		Node *it = grammar;
 		// make a copy of the current stack in case backtracking is needed
 		Node* copy = copyRule(*stack);
 		char *cInput = strdup(*currString);
-
 		while (it != NULL) {
 			char* leading = ((Node*)(it->data.data))->data.data;
 			// check if the leading NonTerminal (for the Rule) matches the current NonTerminal on the stack
@@ -205,7 +189,6 @@ int parse(Node* grammar, Node** stack, char** currString) {
 				// if the string is in the language return true
 				// and delete the copy of the stack
 				if (stringInLang) {
-					//printf("HERE|||\n");
 					free(cInput);
 					deleteStack(&copy);
 					return TRUE;
@@ -215,7 +198,6 @@ int parse(Node* grammar, Node** stack, char** currString) {
 				printf("Backtracking: ");
 				free(*currString);
 				deleteStack(stack);
-				//printf("what|n\n");
 				*stack = copyRule(copy);
 				*currString = strdup(cInput);
 				printCurrentStack(*stack, *currString);
@@ -232,14 +214,9 @@ int parse(Node* grammar, Node** stack, char** currString) {
 		if (popIfMatch(stack, currString)) {
 			// if the string matches the Terminal or Range
 			// then parse the string with the new stack
-			int t = parse(grammar, stack, currString);
-			if (t) return TRUE;
-			if (!t) { //printf("Which\n"); stack = NULL;  printf("Which\n"); 
-				return FALSE; }
+			return parse(grammar, stack, currString);
 		}
 	}
-	// if the current string is empty and the next stack system is a Terminal or Range then the string is not in the language
-
 	// Current string does not match any rules
 	// String is not in the language
 	return FALSE;
