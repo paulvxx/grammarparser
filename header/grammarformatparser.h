@@ -89,4 +89,4 @@ int eatString(char* str, int* pos, char* s);
 // looks ahead for a character
 int peek(char* str, int* pos, char c);
 
-#endif GRAMMAR_FORMAT_PARSER_H
+#endif

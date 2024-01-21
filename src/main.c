@@ -67,8 +67,9 @@ void printHelpMessage() {
 	printf(" ';' | '<' | '>' | ',' | '.' | '?' | '/' | '`' | '~' |\n");
 	printf(" '\\a' | '\\b' | '\\f' | '\\n' | '\\r' | '\\t' | '\\v' | '\\?' | '\\\\' | '\\'' | '\\\"' }*\n");
 	printf("--------------------------------------------------------------------------------\n");
+	printf("Note: All non-terminal sybmols must be initialized in the first line of the grammar file\n");
 	printf("Note: Comments and spaces are generally ignored\n");
-	printf("Comments may occur after an '|' symbol, after the list of non-terminals, or after a rule i.e. the ';' end symbol\n");
+	printf("Comments may occur after a rule equality token '::=', a '|' symbol, after the list of non-terminals, or after a rule i.e. the ';' end symbol\n");
 	printf("Comments are denoted by a '!!' and end with a newline character\n");
 	printf("Spaces are ignored except in the case of a string, where they are treated as a character\n\n");
 	printf("The prgram will print whether or not each string is in the language of the grammar\n");

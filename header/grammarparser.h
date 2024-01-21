@@ -38,4 +38,4 @@ void printCurrentStack(Node* stack, char* string);
 // parses a string based on a stack of symbols
 int parse(Node* grammar, Node** stack, char** currString);
 
-#endif GRAMMAR_PARSER_H
+#endif

@@ -44,4 +44,4 @@ int size(Node* stack);
 // check if the stack is empty
 int isEmpty(Node * stack);
 
-#endif STACK_HEADER_H
+#endif

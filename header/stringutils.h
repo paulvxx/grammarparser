@@ -13,4 +13,4 @@ char* substr(char* str, int lower, int upper);
 // used to process escape characters in a string
 void processEscapeCharacters(char** strToProcess);
 
-#endif STRING_UTILS_H
+#endif
