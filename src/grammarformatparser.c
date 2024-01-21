@@ -104,7 +104,7 @@ char* parseFile(char* filename) {
 
 
 // <Grammar> ::= <ListOfNonTerminals> '\n' <ListOfRules>
-parseGrammar(char* str, int *pos, int* errorFlag, Node** grammar) {
+int parseGrammar(char* str, int *pos, int* errorFlag, Node** grammar) {
     //parseWhiteSpace(str, pos, TRUE);
     parseWhiteSpaceAndComments(str, pos);
     
