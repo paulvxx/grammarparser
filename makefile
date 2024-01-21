@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -I$(INCLUDES)
+CFLAGS = -Wall -I$(INCLUDES)
 INCLUDES = ./header
 SRCDIR = ./src
 
