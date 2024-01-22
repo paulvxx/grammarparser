@@ -58,15 +58,6 @@ int parseStringTokenList(char* str, int* pos);
 // '\a' | '\b' | '\f' | '\n' | '\r' | '\t' | '\v' | '\?' | '\\' | '\'' | '\"' }*
 int parseStringToken(char* str, int* pos);
 
-//<CharSetList> ::= <CharSet> <CharSetList> | <CharSet>
-int parseCharSetList(char* str, int* pos, int* errorFlag, Node* grammar);
-
-//<CharSet> ::= '{' <CharList> '}' | '{' <CharList> '}*'
-int parseCharSet(char* str, int* pos, int* errorFlag, Node* grammar);
-
-//<CharList> ::= '\'' # <StringToken> # '\'' ',' <CharList> | '(' <CharRange> ')' <CharList> | <StringToken> | '(' <CharRange> ')'
-int parseCharList(char* str, int* pos, int* errorFlag, Node* grammar);
-
 //<CharRange> ::= '('#'\''#<StringToken>#'\''#'-'#'\''#<StringToken>#'\''#')'
 int parseCharRange(char* str, int* pos, char* min, char* max, int* errorFlag);
 

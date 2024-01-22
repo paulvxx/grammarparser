@@ -368,48 +368,6 @@ int parseStringToken(char* str, int* pos) {
     return TRUE;
 }
 
-int parseCharSetList(char* str, int* pos, int* errorFlag, Node* grammar) {
-	parseWhiteSpace(str, pos, TRUE);
-    if (!peek(str, pos, '{')) return FALSE;
-	if (!parseCharSet(str, pos, errorFlag, grammar)) return FALSE;
-	parseWhiteSpace(str, pos, TRUE);
-    if (peek(str, pos, '{')) {
-        if (!parseCharSetList(str, pos, errorFlag, grammar)) return FALSE;
-    }
-	return TRUE;
-}
-
-int parseCharSet(char* str, int* pos, int *errorFlag, Node* grammar) {
-	if (!eat(str, pos, '{')) return grammarError("Missing \'{\'", pos, errorFlag);
-	if (!parseCharList(str, pos, errorFlag, grammar)) return FALSE;
-	if (!eat(str, pos, '}')) return grammarError("Missing \'}\'", pos, errorFlag);
-	if (eat(str, pos, '*')) return TRUE;
-	return TRUE;
-}
-
-int parseCharList(char* str, int* pos, int* errorFlag, Node* grammar) {
-    parseWhiteSpace(str, pos, TRUE);
-    if (peek(str, pos, '(')) {
-		if (!eat(str, pos, '(')) return grammarError("Missing \'(\', Expected Character Range", pos, errorFlag);
-        parseWhiteSpace(str, pos, FALSE);
-        char min;
-        char max;
-		if (!parseCharRange(str, pos, &min, &max, errorFlag)) return FALSE;
-        parseWhiteSpace(str, pos, FALSE);
-		if (!eat(str, pos, ')')) return grammarError("Missing \')\', Expected Character Range", pos, errorFlag);
-	}
-	else {
-		if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
-		if (!parseStringToken(str, pos)) return FALSE;
-		if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
-	}
-    parseWhiteSpace(str, pos, TRUE);
-    if (eat(str, pos, ',')) {
-        if (!parseCharList(str, pos, errorFlag, grammar)) return FALSE;
-    }
-    return TRUE;
-}
-
 int parseCharRange(char *str, int* pos, char *min, char *max, int* errorFlag) {
 	if (!eat(str, pos, '\'')) return grammarError("Missing \' quotation mark, Expected Character", pos, errorFlag);
     int oldPos = *pos;
