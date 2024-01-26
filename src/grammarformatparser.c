@@ -334,7 +334,6 @@ int parseTerminal(char* str, int* pos) {
 
 int parseString(char* str, int* pos) {
     if (!eat(str, pos, '\"')) return FALSE;
-    eat(str, pos, '\"');
     if (peek(str, pos, '\"')) return eat(str, pos, '\"'); //TRUE
 	if (!parseStringTokenList(str, pos)) return FALSE;
     if (!eat(str, pos, '\"')) return FALSE;

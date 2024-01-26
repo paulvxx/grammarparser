@@ -25,22 +25,31 @@ void deleteGrammar(Node **grammar) {
 
 void printRule(Node* rule) {
 	Node *iterator = rule;
-	printf("------------------\n");
-	while (iterator != NULL) {
-		printf("Type = % s  Data : % s\n", (char*)iterator->data.type, (char*)iterator->data.data);
+	if (iterator != NULL) {
+		printf("<%s> --> ", (char*)iterator->data.data);
 		iterator = iterator->next;
 	}
-	printf("------------------\n");
+	while (iterator != NULL) {
+		if (strcmp((char*)iterator->data.type, "NonTerminal") == 0) {
+			printf("<%s> ", (char*)iterator->data.data);
+		}
+		else {
+			printf("\"%s\" ", (char*)iterator->data.data);
+		}
+		iterator = iterator->next;
+	}
 }
 
 void printGrammar(Node* grammar) {
 	Node *iterator = grammar;
+	printf("Grammar:\n");
+	printf("------------------");
 	while (iterator != NULL) {
-		printf("%s:\n", (char*)iterator->data.type);
+		printf("\n");
 		printRule((Node*) iterator->data.data);
 		iterator = iterator->next;
 	}
-	printf("\nDONE------------------DONE\n");
+	printf("\n------------------\n");
 }
 
 
