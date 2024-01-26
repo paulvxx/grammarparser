@@ -110,8 +110,8 @@ int main(int argc, char* argv[]) {
 	// missing filename
 	if (text) {
 		if (argc == 2) {
-			perror("Missing filename\n");
-			perror("Run this program without arguments to see the help message\n");
+			ERROR("Missing filename\n");
+			ERROR("Run this program without arguments to see the help message\n");
 			return 1;
 		}
 		else argPos++;

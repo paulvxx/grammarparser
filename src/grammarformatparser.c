@@ -72,14 +72,14 @@ char* parseFile(char* filename) {
     size_t capacity = 1024;
     char* result = malloc(capacity);
     if (result == NULL) {
-        perror("malloc failed");
+        ERROR("malloc failed");
         exit(EXIT_FAILURE);
     }
     result[0] = '\0';
 
     fp = fopen(filename, "r");
     if (fp == NULL) {
-        perror("Error opening file");
+        ERROR("Error opening file");
         free(result);
         exit(EXIT_FAILURE);
     }
@@ -91,7 +91,7 @@ char* parseFile(char* filename) {
             char* temp = realloc(result, capacity);
             if (temp == NULL) {
                 free(result);
-                perror("realloc failed");
+                ERROR("realloc failed");
                 exit(EXIT_FAILURE);
             }
             result = temp;
