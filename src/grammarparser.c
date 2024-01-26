@@ -115,7 +115,7 @@ void deleteStack(Node** stack) {
 
 // takes an arbitrary grammar structure and determines if a corresponding string is
 // in the language defined by the grammar
-int parseStringGrammar(Node* grammar, char* string) {
+int parseStringGrammar(Node* grammar, char* string, int showStack) {
 	if (grammar == NULL) return FALSE;
 	char *copyOfString = (char*) malloc(sizeof(char)*(strlen(string)+1));
 	strcpy(copyOfString, string);
@@ -128,7 +128,7 @@ int parseStringGrammar(Node* grammar, char* string) {
 	push(&stack, (Data) { "NonTerminal", startingSymbol });
 
 	// parse the input string
-	int stringInLang = parse(grammar, &stack, &copyOfString);
+	int stringInLang = parse(grammar, &stack, &copyOfString, showStack);
 
 	free(copyOfString);
 	//clear contents of stack
@@ -162,7 +162,7 @@ void printCurrentStack(Node* stack, char* string) {
 }
 
 // parses a string based on a stack of symbols
-int parse(Node* grammar, Node** stack, char** currString) {
+int parse(Node* grammar, Node** stack, char** currString, int showStack) {
 	printCurrentStack(*stack, *currString);
 	// if the current string and stack are empty then the string is in the language
 	// if the stack is empty but current string is not then the string is not in the language
@@ -185,7 +185,7 @@ int parse(Node* grammar, Node** stack, char** currString) {
 				// add the sequence of the rule to the stack
 				addSequence(stack, (Node*)(it->data.data));
 				// parse the string with the new stack
-				int stringInLang = parse(grammar, stack, currString);
+				int stringInLang = parse(grammar, stack, currString, showStack);
 				// if the string is in the language return true
 				// and delete the copy of the stack
 				if (stringInLang) {
@@ -214,7 +214,7 @@ int parse(Node* grammar, Node** stack, char** currString) {
 		if (popIfMatch(stack, currString)) {
 			// if the string matches the Terminal or Range
 			// then parse the string with the new stack
-			return parse(grammar, stack, currString);
+			return parse(grammar, stack, currString, showStack);
 		}
 	}
 	// Current string does not match any rules

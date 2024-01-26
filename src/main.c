@@ -55,7 +55,11 @@ void printGrammar(Node* grammar) {
 
 void printHelpMessage() {
 	printf("A program to check if a string is in the language of an arbitrary grammar\n");
-	printf("Usage: ./grammarparser <grammar file> <string to parse> <string to parse> ...\n");
+	printf("Usage: ./grammarparser (Optional: -t) <grammar file> (Optional: -s) <string to parse> (Optional: -s) <string to parse> ...\n");
+	printf("Optional: <string to parse>");
+	printf("Flags:\n");
+	printf("-t: Print the parsed text (Grammar). Occurs right before filename argument");
+	printf("-s: Print the stack trace for the given derivation of the string. Occurs right before each input string on the command line\n");
 	printf("To print this message again, run the program with no arguments\n");
 	printf("Syntax for grammar file:\n");
 	printf("--------------------------------------------------------------------------------\n");
@@ -71,7 +75,7 @@ void printHelpMessage() {
 	printf("<Terminal> ::= <String>\n");
 	printf("<String> ::= '\"' # <StringTokenList> # '\"'\n");
 	printf("<StringTokenList> ::= # <StringToken> # <StringTokenList> # | ''\n");
-	printf("<StringToken> ::= {'A' - 'Z' | 'a' - 'z' | '0' - '9' | ' ' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' |\n");
+	printf("<StringToken> ::= {'A' - 'Z' | 'a' - 'z' | '0' - '9' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' |\n");
 	printf(" '(' | ')' | '_' | '-' | '+' | '=' | '{' | '}' | '[' | ']' | '|' | ':' |\n");
 	printf(" ';' | '<' | '>' | ',' | '.' | '?' | '/' | '`' | '~' |\n");
 	printf(" '\\a' | '\\b' | '\\f' | '\\n' | '\\r' | '\\t' | '\\v' | '\\?' | '\\\\' | '\\'' | '\\\"' }*\n");
@@ -99,8 +103,22 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
+	int argPos = 1;
+	// check for flags
+	int text = (strcmp(argv[1], "-t") == 0);
+	// command line arguments are invalid
+	// missing filename
+	if (text) {
+		if (argc == 2) {
+			perror("Missing filename\n");
+			perror("Run this program without arguments to see the help message\n");
+			return 1;
+		}
+		else argPos++;
+	}
+
 	// first command line argument is the grammar file
-	char* toParse = parseFile(argv[1]);
+	char* toParse = parseFile(argv[argPos]);
 	int error = TRUE;
 	int pos = 0;
 	Node* grammar = NULL;
@@ -115,14 +133,16 @@ int main(int argc, char* argv[]) {
 		deleteGrammar(&grammar);
 		return 0;
 	}
-	printGrammar(grammar);
+	if (text) {
+		printGrammar(grammar);
+		printf("\n");
+	}
 
 	// rest of the command line arguments are test strings to parse
-	int i = 2;
-	while (i < argc) {
-		char* input = malloc(sizeof(char) * (strlen(argv[i]) + 1));
-		strcpy(input, argv[i]);
-		int inLang = parseStringGrammar(grammar, input);
+	while (argPos < argc) {
+		char* input = malloc(sizeof(char) * (strlen(argv[argPos]) + 1));
+		strcpy(input, argv[argPos]);
+		int inLang = parseStringGrammar(grammar, input, TRUE);
 		if (inLang) {
 			printf("Input %s: String is in the language\n", input);
 		}
@@ -130,7 +150,7 @@ int main(int argc, char* argv[]) {
 			printf("Input %s: String is not in the language\n", input);
 		}
 		free(input);
-		i++;
+		argPos++;
 	}
 
 	free(toParse);

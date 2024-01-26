@@ -30,12 +30,12 @@ void deleteStack(Node** stack);
 
 // takes an arbitrary grammar structure and determines if a corresponding string is
 // in the language defined by the grammar
-int parseStringGrammar(Node* grammar, char* string);
+int parseStringGrammar(Node* grammar, char* string, int showStack);
 
 // prints the current stack
 void printCurrentStack(Node* stack, char* string);
 
 // parses a string based on a stack of symbols
-int parse(Node* grammar, Node** stack, char** currString);
+int parse(Node* grammar, Node** stack, char** currString, int showStack);
 
 #endif
