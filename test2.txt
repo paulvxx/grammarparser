@@ -1,6 +1,6 @@
-[A, B, C, D, E, M]  
+[A, B, C]  
 
 A ::= !! comment
-"ccca" | "a" B | "aaabc";
-B ::= "a" | "b" | "c" A | "ac";
-!! C ::= "a" A "a" | "ab" | "ac" | "bc" ;
+"" | "ab" | "c" B "da" | "ddc" | "d" C "ad" B "c";
+B ::= "dcb" | "abb" | "ca" C "c" | "ca" B;
+C ::= "aba" A | "dca" B "ac" | "ca" | "bbdb";
