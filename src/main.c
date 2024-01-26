@@ -122,6 +122,7 @@ int main(int argc, char* argv[]) {
 	int error = TRUE;
 	int pos = 0;
 	Node* grammar = NULL;
+	argPos++;
 
 	// parse the grammar file to obtain a grammar
 	if (parseGrammar(toParse, &pos, &error, &grammar)) {
@@ -140,9 +141,14 @@ int main(int argc, char* argv[]) {
 
 	// rest of the command line arguments are test strings to parse
 	while (argPos < argc) {
+		int showStack = (strcmp(argv[argPos], "-s") == 0);
+		if (showStack) {
+			printf("\n");
+			argPos++;
+		}
 		char* input = malloc(sizeof(char) * (strlen(argv[argPos]) + 1));
 		strcpy(input, argv[argPos]);
-		int inLang = parseStringGrammar(grammar, input, TRUE);
+		int inLang = parseStringGrammar(grammar, input, showStack);
 		if (inLang) {
 			printf("Input %s: String is in the language\n", input);
 		}
@@ -152,7 +158,6 @@ int main(int argc, char* argv[]) {
 		free(input);
 		argPos++;
 	}
-
 	free(toParse);
 	deleteGrammar(&grammar);
 	return 0;

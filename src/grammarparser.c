@@ -163,7 +163,9 @@ void printCurrentStack(Node* stack, char* string) {
 
 // parses a string based on a stack of symbols
 int parse(Node* grammar, Node** stack, char** currString, int showStack) {
-	printCurrentStack(*stack, *currString);
+	if (showStack) {
+		printCurrentStack(*stack, *currString);
+	}
 	// if the current string and stack are empty then the string is in the language
 	// if the stack is empty but current string is not then the string is not in the language
 	if (isEmpty(*stack)) { 
@@ -195,12 +197,14 @@ int parse(Node* grammar, Node** stack, char** currString, int showStack) {
 				}
 				// otherwise backtrack to the previous stack
 				// and find a new rule that matches the current NonTerminal
-				printf("Backtracking: ");
 				free(*currString);
 				deleteStack(stack);
 				*stack = copyRule(copy);
 				*currString = strdup(cInput);
-				printCurrentStack(*stack, *currString);
+				if (showStack) {
+					printf("Backtracking: ");
+					printCurrentStack(*stack, *currString);
+				}
 			}
 			it = it->next;
 		}
