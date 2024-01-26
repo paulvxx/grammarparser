@@ -4,9 +4,8 @@
 !! Another comment
 
 A ::= "ab" | "c" B | "aadac";
-B ::= "a" | "b" | "c" A | ('a'-'b'); !! test
+B ::= "a" | "b" | "c" A | ('e'-'j'); !! test
 
-   
 !! Another comment here     
 !! Another comment here  
 

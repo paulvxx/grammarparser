@@ -1,6 +1,6 @@
 [A, B, C, D]
 
-A ::= "ab" | "ab" B "de" | "c" A "cd" D "c" | "c" C | "ade" | "eabc";
+A ::= "ab" | "ab" B "de" | "c" A "cd" D "c" | "c" C | "ade";
 B ::= "bccc" | "abc" A "a" | "cc" D "aca" | "" | "cada" | "eacad";
 C ::= "a" C | "dd" C | "e" | "be" D;
 D ::= B "adad" | "aa" C "ead" | "cccee" | "cabe" | "a" C "e" C "d";
