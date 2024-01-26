@@ -80,6 +80,7 @@ char* parseFile(char* filename) {
     fp = fopen(filename, "r");
     if (fp == NULL) {
         perror("Error opening file");
+        free(result);
         exit(EXIT_FAILURE);
     }
 
