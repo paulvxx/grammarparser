@@ -22,3 +22,5 @@ The -t switch will display the grammar represented by the file (i.e. rules in th
 The -s switch, if before a string, will display the stack trace for that string during parsing. The stack trace includes the current input, and backtracking changes (if needed)
 
 Sample test files have been given (test.txt, test2.txt, test3.txt).
+
+[IMPORTANT: Don't forget to add a newline character at the end of the grammar file!!!]
