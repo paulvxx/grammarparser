@@ -1,0 +1,25 @@
+// (Note: White space is generally ignored, a '#' symbol denotes no whitespace is allowed)
+// (Note: '' deontes an empty string)
+// (Note: Comments are allowed and start with two '!!' marks, and end with a newline character)
+// Comments may occur after a rule list, the '::=' indicator or the '|' symbol, after a ';' symbol, before the list of rules (before and after the
+// initializer list of Non-Terminals).
+// EXPECTED FORMAT:
+//<Grammar> ::= <NonTerminalInit> '\n' <ListOfRules>
+//<NonTerminalInit> ::= '[' <ListOfNonTerminals> ']' 
+//<ListOfNonTerminals> ::= <NonTerminal> ',' <ListOfNonTerminals> | <NonTerminal>
+//<ListOfNonTerminals> ::= '[' <ListOfNonTerminals> ']'
+//<ListOfNonTerminals> ::= <NonTerminal> ',' <ListOfNonTerminals> | <NonTerminal>
+//<NonTerminal> ::= {'A' - 'Z'} {'A' - 'Z' | 'a' - 'z'}*
+//<ListOfRules> ::= <Rule> <ListOfRules> | <Rule>
+//<Rule> ::= <NonTerminal> '::=' <ListOfProductions> ';' '\n'
+//<ListOfProductions> ::= <ProductionSequence> '|' <ListOfProductions> | <ProductionSequence>
+//<ProductionSequence> ::= <Production> | <CharRange> | <Production> <ProductionSequence> | <CharRange> <ProductionSequence>
+//<Production> ::= <Terminal> <Production> | <NonTerminal> <Production> | <Terminal> | <NonTerminal>
+//<Terminal> ::= <String>
+//<String> ::= '\"' # <StringTokenList> # '\"'
+//<StringTokenList> ::= # <StringToken> # <StringTokenList> # | ''
+//<StringToken> ::= {'A'-'Z' | 'a'-'z' | '0'-'9' | ' ' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | 
+// '(' | ')' | '_' | '-' | '+' | '=' | '{' | '}' | '[' | ']' | '|' | ':' | 
+// ';' | '<' | '>' | ',' | '.' | '?' | '/' | '`' | '~' |  
+// '\a' | '\b' | '\f' | '\n' | '\r' | '\t' | '\v' | '\?' | '\\' | '\'' | '\"' }*
+// <CharRange> ::= '('#'\''#<StringToken>#'\''#'-'#'\''#<StringToken>#'\''#')'
