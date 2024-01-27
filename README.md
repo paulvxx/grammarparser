@@ -15,7 +15,7 @@ should print a help message.
 
 The format for command line arguments is:
 
-> ./gram (Optional -t) filename (Optional:   (Optional -s) stringToParse (Optional -s) stringToParse (Optional -s) stringToParse ... )
+> ./grm (Optional -t) filename (Optional:   (Optional -s) stringToParse (Optional -s) stringToParse (Optional -s) stringToParse ... )
 
 The -t switch will display the grammar represented by the file (i.e. rules in the grammar)
 
