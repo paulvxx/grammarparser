@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <crtdbg.h>
+//#include <crtdbg.h>
 #include "grammarparser.h"
 #include "grammarformatparser.h"
 
@@ -95,7 +95,7 @@ void printHelpMessage() {
 }
 
 int main(int argc, char* argv[]) {
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	// print a help message if no command line arguments are given
 	if (argc == 1) {
