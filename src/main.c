@@ -5,7 +5,7 @@
 //#include <crtdbg.h>
 #include "grammarparser.h"
 #include "grammarformatparser.h"
-
+#include "error.h"
 
 void deleteGrammar(Node **grammar) {
 	Node* iterator = *grammar;
